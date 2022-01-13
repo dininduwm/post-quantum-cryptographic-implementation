@@ -8,11 +8,11 @@ using Eigen::MatrixXd;
 using Eigen::Matrix;
 
 // defining the parameters
-#define q 128
+#define q 512
 #define n 30
-#define m 180
-#define e_min -7
-#define e_max 7
+#define m 270
+#define e_min -1
+#define e_max 1
 
 // Encrypting Function
 void encrypt(Matrix<int,n,m>* A,Matrix<int,m,1>* b,char plain, int* cipher, Matrix<int,n,1>* u){
@@ -26,10 +26,12 @@ void encrypt(Matrix<int,n,m>* A,Matrix<int,m,1>* b,char plain, int* cipher, Matr
     Matrix <int,1,m> bT = b->transpose();
 
     // u = AX
+    // should take mod q
     *u = (*A)*X;
     // tempory varable for handling characters
     unsigned char shift = 1;
     int btx = (bT*X)%q;
+    // change this to encrypt single bit message
     // itarating through the bits of the character and encrypting them
     for (int i = 0; i < 8; i++)
     {
@@ -39,6 +41,8 @@ void encrypt(Matrix<int,n,m>* A,Matrix<int,m,1>* b,char plain, int* cipher, Matr
     }
     // cout<<"[DEBUG] min of X : "<<X.minCoeff()<<" max of X : "<<X.maxCoeff()<<endl;
     
+    // should output u and cipher[0]
+
 }
 
 // Decrypting Funciton
@@ -51,6 +55,7 @@ char decrypt(Matrix<int,n,m> *A,Matrix<int,n,1> *u, int* cipher,Matrix<int,1,n> 
     int temp;
 
     // recovering the character step by step
+    // recovering the single bit message
     for (size_t i = 0; i < 8; i++)
     {
         temp = (cipher[i]-sTu +q)%q;
@@ -66,11 +71,14 @@ char decrypt(Matrix<int,n,m> *A,Matrix<int,n,1> *u, int* cipher,Matrix<int,1,n> 
 
 
 int main(int argc, char const *argv[])
-{    
+{  
+    // A and s should be choose from uniform distribution over Zq(0, q-1)  
     srand(time(0));
     // defining randome number genarator with the seed as time
     default_random_engine generator;
     generator.seed(time(0));
+    // strong random number genarator other than default random number genarator in c++
+
     // define a normal distribution to choose values 
     normal_distribution<double> distribution(64.0,16.0);
     std::random_device rd;
@@ -91,6 +99,7 @@ int main(int argc, char const *argv[])
         }      
     }
 
+    // avarage of A's coiff should be close to q/2
     cout<<"[DEBUG] Min of A : "<<A.minCoeff()<<" Max of A : "<<A.maxCoeff()<<endl;
     cout<<"[LOG] Done"<<endl;
   
@@ -111,6 +120,7 @@ int main(int argc, char const *argv[])
     int total = 0;
     for (int i = 0; i < m; i++)
     {   
+        // e should be small and should choosen between -7,7 (discreate gausisan distribution [ignore for now])
         e(i) = uniform_dist(gen);
         total+=e(i);
     }
@@ -123,6 +133,8 @@ int main(int argc, char const *argv[])
     // calculating bT 
     bT = s*A + e ;
     b = bT.transpose();
+    // public key -> bT and A
+    // private key -> s and e
     
     // Testing 
     cout<<"A_rows :"<<A.rows()<<" A_cols :"<<A.cols()<<endl;
@@ -140,6 +152,7 @@ int main(int argc, char const *argv[])
     
     // sample character to test
     char plain = 's';
+    // single bit
     int cipher[8];
 
     Matrix <int,n,1>u;
