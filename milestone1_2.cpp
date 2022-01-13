@@ -104,6 +104,7 @@ void genarateKeys(privateKey* private_key, publicKey* public_key)
         public_key->bT(col) = public_key->bT(col) % q;
     }
 
+    // sharig A among public and private key
     private_key->A = public_key->A;
 }
 
@@ -156,8 +157,7 @@ int main(int argc, char const *argv[])
     // sample character to test
     int message = 0;
     // encrypting the message
-    cipherText cipher_text;
-    cipher_text = encrypt(public_key, message);
+    cipherText cipher_text = encrypt(public_key, message);
     // decrypting the message
     int recovered_message = decrypt(private_key, cipher_text);
     cout << "recovered : " << recovered_message << endl;
