@@ -1,8 +1,8 @@
 # post-quantum-cryptographic-implementation
 Latis based post quantum cryptographic algorithm implementation
 
-# compilation
+## compilation
 g++ input.cpp -o output
 
-# execution
+## execution
 ./output
