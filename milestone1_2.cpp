@@ -61,7 +61,7 @@ void genarateKeys(privateKey* private_key, publicKey* public_key)
         for (int j = 0; j < m; j++)
         {
             // filling the A matrix from the numbers taken from the distribution
-            public_key->A(i, j) = (int(distribution(generator))) % q;
+            public_key->A(i, j) = rand() % q;
         }
     }
 
@@ -73,7 +73,7 @@ void genarateKeys(privateKey* private_key, publicKey* public_key)
     cout << "[LOG] Generating Matrix s" << endl;
     for (int col = 0; col < private_key->sT.cols(); col++)
     {
-        private_key->sT(col) = (int(distribution(generator))) % q;
+        private_key->sT(col) = rand() % q;
     }
     cout << "[LOG] Done" << endl;
 
@@ -101,7 +101,7 @@ void genarateKeys(privateKey* private_key, publicKey* public_key)
     // taking the modulus values of bT
     for (int col = 0; col < public_key->bT.cols(); col++)
     {
-        public_key->bT(col) = public_key->bT(col) % q;
+        public_key->bT(col) = ((public_key->bT(col) % q)+q)%q;
     }
 
     // sharig A among public and private key
@@ -122,10 +122,10 @@ cipherText encrypt(publicKey public_key, int message_bit)
     // u = AX
     // should take mod q
     cipher_text.u = (public_key.A) * X;
-    int bTx = (public_key.bT * X) % q;
+    int bTx = (((public_key.bT * X) % q)+q)%q;
 
     // encrypting the bit
-    cipher_text.u_ = (bTx + (message_bit * q / 2)) % q;
+    cipher_text.u_ = (((bTx + (message_bit * q / 2)) % q)+q)%q;
 
     cout<<"[DEBUG] min of X : "<<X.minCoeff()<<" max of X : "<<X.maxCoeff()<<endl;
 
@@ -140,7 +140,7 @@ int decrypt(privateKey private_key, cipherText cipher_text)
 
     // recovering the single bit message
     int recovered = 1;
-    if (((cipher_text.u_ - sTu + q) % q) <= q / 4)
+    if ((((cipher_text.u_ - sTu) % q)+q)%q <= q / 4)
     { // bit is 1
         recovered = 0;
     }
