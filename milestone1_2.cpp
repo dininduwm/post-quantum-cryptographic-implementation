@@ -16,8 +16,6 @@ using Eigen::MatrixXd;
 #define e_min -1
 #define e_max 1
 
-long large = 0;
-
 // structures
 // public key
 struct publicKey
@@ -39,6 +37,11 @@ struct cipherText
     Matrix<long, n, 1> u;
     long u_;
 };
+
+// modulus function
+long mod(long value, long mod_value) {
+    return ((value % mod_value) + mod_value) % mod_value;
+}
 
 // function to genarate keys
 void genarateKeys(privateKey* private_key, publicKey* public_key)
@@ -68,7 +71,6 @@ void genarateKeys(privateKey* private_key, publicKey* public_key)
         {
             // filling the A matrix from the numbers taken from the distribution
             public_key->A(i, j) = uniform_dist_A_s(gen);
-            // cout <<" [DEBUG] " <<  public_key->A(i, j) << endl;
         }
     }
 
@@ -100,54 +102,16 @@ void genarateKeys(privateKey* private_key, publicKey* public_key)
     // calculating bT
     public_key->bT = (private_key->sT) * (public_key->A) + eT;
 
-    // Testing
-    cout << "A_rows :" << (public_key->A).rows() << " A_cols :" << (public_key->A).cols() << endl;
-    cout << "s_rows :" << private_key->sT.rows() << " s_cols :" << private_key->sT.cols() << endl;
-    cout << "e_rows :" << eT.rows() << " e_cols :" << eT.cols() << endl;
-    cout << "b'_rows :" << public_key->bT.rows() << " b'_cols :" << public_key->bT.cols() << endl;
-
     // taking the modulus values of bT
     for (long col = 0; col < public_key->bT.cols(); col++)
     {
-        public_key->bT(col) = ((public_key->bT(col) % q) + q)%q;
+        public_key->bT(col) = mod(public_key->bT(col), q);
     }
 
     cout << "[DEBUG] Min of B : " << public_key->bT.minCoeff() << " Max of B : " << public_key->bT.maxCoeff() << endl;
 
     // sharig A among public and private key
     private_key->A = public_key->A;
-
-    //debugging
-    cout << endl << "A" << endl;
-    for (long dr = 0; dr < private_key->A.rows(); dr++) {
-        for (long dc = 0; dc < private_key->A.cols(); dc++) {
-            cout << private_key->A(dr, dc) << " ";
-        }
-        cout << endl;
-    }
-    cout << endl << "eT" << endl;
-    for (long dr = 0; dr < eT.rows(); dr++) {
-        for (long dc = 0; dc < eT.cols(); dc++) {
-            cout << eT(dr, dc) << " ";
-        }
-        cout << endl;
-    }
-
-    cout << endl << "bT" << endl;
-    for (long dr = 0; dr < public_key->bT.rows(); dr++) {
-        for (long dc = 0; dc < public_key->bT.cols(); dc++) {
-            cout << public_key->bT(dr, dc) << " ";
-        }
-        cout << endl;
-    }
-
-    cout << endl << "sT" << endl;
-    for (long dr = 0; dr < private_key->sT.rows(); dr++) {
-        for (long dc = 0; dc < private_key->sT.cols(); dc++) {
-            cout << private_key->sT(dr, dc) << " ";
-        }
-        cout << endl;
-    }
 }
 
 // Encrypting Function
@@ -165,40 +129,19 @@ cipherText encrypt(publicKey public_key, long message_bit)
     // should take mod q
     cipher_text.u = (public_key.A) * X;
     // cout<<"[DEBUG] min of u : "<<cipher_text.u.minCoeff()<<" max of u : "<<cipher_text.u.maxCoeff()<<endl;
-    long bTx = (((public_key.bT * X) % q)+q)%q;
+    long bTx = mod(((public_key.bT * X) % q), q);
 
     // encrypting the bit
-    cipher_text.u_ = (((bTx + (message_bit * (q / 2))) % q)+q)%q;
+    cipher_text.u_ = mod((bTx + (message_bit * (q / 2))), q);
 
     //cout<<"[DEBUG] u' : " <<cipher_text.u_ <<endl;
-
-    // debugging
-    cout << endl << "X" << endl;
-    for (long dr = 0; dr < X.rows(); dr++) {
-        for (long dc = 0; dc < X.cols(); dc++) {
-            cout << X(dr, dc) << " ";
-        }
-        cout << endl;
-    }
-
-    cout << endl << "u" << endl;
-    for (long dr = 0; dr < cipher_text.u.rows(); dr++) {
-        for (long dc = 0; dc < cipher_text.u.cols(); dc++) {
-            cout << cipher_text.u(dr, dc) << " ";
-        }
-        cout << endl;
-    }
-
-    cout << "u_ = " << cipher_text.u_ << endl;
-
     return cipher_text;
 }
 
 // Decrypting Funciton
 long decrypt(privateKey private_key, cipherText cipher_text)
 {
-
-    long sTu = ((((private_key.sT) * (cipher_text.u)) % q)+q)%q;
+    long sTu = mod(((private_key.sT) * (cipher_text.u)), q);
 
     // recovering the single bit message
     long recovered = 1;
@@ -206,14 +149,7 @@ long decrypt(privateKey private_key, cipherText cipher_text)
     { // bit is 1
         recovered = 0;
     }
-    
-    if(sTu > cipher_text.u_ )
-    large++;
 
-    //cout << "[DEBUG] sTu % : " << sTu << endl;
-    //cout << "[DEBUG] Decypering before % : " << cipher_text.u_ - sTu << ". After % : " << (cipher_text.u_ - sTu) % q << endl;
-    //cout << "[DEBUG] Recovered : " << recovered << endl;
-    //cout << "\n" << endl;
     return recovered;
 }
 
@@ -231,18 +167,8 @@ int main(int argc, char const *argv[])
     cin >> message; 
 
     cout<<"################# INPUT:  "<< message <<endl;
-    // encrypting the message
-    // cipherText cipher_text = encrypt(public_key, message);
-    // decrypting the message
-    // long recovered_message = decrypt(private_key, cipher_text);
-    // cout << "recovered : " << recovered_message << endl;
 
-     // Matrix <long,n,1>u;
-     // encrypt(&A,&b,plain,cipher,&u);
-
-    // cout<<"plaintext letter :"<<plain<<" Recovered letter :"<<decrypt(&A,&u,cipher,&s)<<endl;
-
-    // // evaluating the success rate
+    // evaluating the success rate
      double success = 0;
      char result;
      long rounds = 1000;
@@ -253,12 +179,8 @@ int main(int argc, char const *argv[])
          long recovered_message = decrypt(private_key, cipher_text);
          if(message == recovered_message)
              success++;
-        else {
-            cout << "recoverd message = " << recovered_message << endl;
-            return 0;
-        }
      }
      cout<<"Encryption and Decryption works "<<(success/rounds)* 100<<"% of time."<<endl;
-     cout<<large<<endl;
+
     return 0;
 }
