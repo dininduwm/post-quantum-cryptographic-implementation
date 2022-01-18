@@ -8,11 +8,13 @@ using Eigen::Matrix;
 using Eigen::MatrixXd;
 
 // defining the parameters
-#define q 512
+#define q 8192
 #define n 30
 #define m 270
 #define e_min -1
 #define e_max 1
+
+int large = 0;
 
 // structures
 // public key
@@ -64,11 +66,12 @@ void genarateKeys(privateKey* private_key, publicKey* public_key)
         {
             // filling the A matrix from the numbers taken from the distribution
             public_key->A(i, j) = uniform_dist_A_s(gen);
+            // cout <<" [DEBUG] " <<  public_key->A(i, j) << endl;
         }
     }
 
     // avarage of A's coiff should be close to q/2
-    // cout << "[DEBUG] Min of A : " << public_key->A.minCoeff() << " Max of A : " << public_key->A.maxCoeff() << endl;
+    cout << "[DEBUG] Min of A : " << public_key->A.minCoeff() << " Max of A : " << public_key->A.maxCoeff() << endl;
     cout << "[LOG] Done" << endl;
 
     // genarating the s matrix
@@ -77,6 +80,7 @@ void genarateKeys(privateKey* private_key, publicKey* public_key)
     {
         private_key->sT(col) = uniform_dist_A_s(gen);
     }
+    cout << "[DEBUG] Min of s : " << private_key->sT.minCoeff() << " Max of s : " << private_key->sT.maxCoeff() << endl;
     cout << "[LOG] Done" << endl;
 
     // genarating the error matrix
@@ -89,7 +93,7 @@ void genarateKeys(privateKey* private_key, publicKey* public_key)
         eT(col) = uniform_dist(gen);
         total += eT(col);
     }
-    // cout << "[DEBUG] min e: " << eT.minCoeff() << " max e: " << eT.maxCoeff() << " total :" << total << endl;
+    cout << "[DEBUG] min e: " << eT.minCoeff() << " max e: " << eT.maxCoeff() << " total :" << total << endl;
 
     // calculating bT
     public_key->bT = (private_key->sT) * (public_key->A) + eT;
@@ -103,8 +107,10 @@ void genarateKeys(privateKey* private_key, publicKey* public_key)
     // taking the modulus values of bT
     for (int col = 0; col < public_key->bT.cols(); col++)
     {
-        public_key->bT(col) = ((public_key->bT(col) % q)+q)%q;
+        public_key->bT(col) = ((public_key->bT(col) % q) + q)%q;
     }
+
+    cout << "[DEBUG] Min of B : " << public_key->bT.minCoeff() << " Max of B : " << public_key->bT.maxCoeff() << endl;
 
     // sharig A among public and private key
     private_key->A = public_key->A;
@@ -120,16 +126,17 @@ cipherText encrypt(publicKey public_key, int message_bit)
     {
         X(i) = rand() % 2;
     }
-
+    // cout<<"[DEBUG] min of X : "<<X.minCoeff()<<" max of X : "<<X.maxCoeff()<<endl;
     // u = AX
     // should take mod q
     cipher_text.u = (public_key.A) * X;
+    // cout<<"[DEBUG] min of u : "<<cipher_text.u.minCoeff()<<" max of u : "<<cipher_text.u.maxCoeff()<<endl;
     int bTx = (((public_key.bT * X) % q)+q)%q;
 
     // encrypting the bit
     cipher_text.u_ = (((bTx + (message_bit * q / 2)) % q)+q)%q;
 
-    // cout<<"[DEBUG] min of X : "<<X.minCoeff()<<" max of X : "<<X.maxCoeff()<<endl;
+    //cout<<"[DEBUG] u' : " <<cipher_text.u_ <<endl;
 
     return cipher_text;
 }
@@ -142,10 +149,18 @@ int decrypt(privateKey private_key, cipherText cipher_text)
 
     // recovering the single bit message
     int recovered = 1;
-    if ((((cipher_text.u_ - sTu) % q)+q)%q <= q / 4)
+    if ((((cipher_text.u_ - sTu) % q)) <= q / 4)
     { // bit is 1
         recovered = 0;
     }
+    
+    if(sTu > cipher_text.u_ )
+    large++;
+
+    //cout << "[DEBUG] sTu % : " << sTu << endl;
+    //cout << "[DEBUG] Decypering before % : " << cipher_text.u_ - sTu << ". After % : " << (cipher_text.u_ - sTu) % q << endl;
+    //cout << "[DEBUG] Recovered : " << recovered << endl;
+    //cout << "\n" << endl;
     return recovered;
 }
 
@@ -157,7 +172,12 @@ int main(int argc, char const *argv[])
     genarateKeys(&private_key, &public_key);
 
     // sample character to test
-    int message = 0;
+    int message;
+
+    cout << "Enter bit:: "; 
+    cin >> message; 
+
+    cout<<"################# INPUT:  "<< message <<endl;
     // encrypting the message
     // cipherText cipher_text = encrypt(public_key, message);
     // decrypting the message
@@ -170,16 +190,17 @@ int main(int argc, char const *argv[])
     // cout<<"plaintext letter :"<<plain<<" Recovered letter :"<<decrypt(&A,&u,cipher,&s)<<endl;
 
     // // evaluating the success rate
-     int success = 0;
+     double success = 0;
      char result;
-     for (size_t i = 0; i < 1000; i++)
+     int rounds = 1000;
+     for (size_t i = 0; i < rounds; i++)
      {
          cipherText cipher_text = encrypt(public_key, message);
          int recovered_message = decrypt(private_key, cipher_text);
          if(message == recovered_message)
              success++;
      }
-     cout<<"Encryption and Decryption works "<<success/10<<"% of time."<<endl;
-
+     cout<<"Encryption and Decryption works "<<(success/rounds)* 100<<"% of time."<<endl;
+     cout<<large<<endl;
     return 0;
 }
