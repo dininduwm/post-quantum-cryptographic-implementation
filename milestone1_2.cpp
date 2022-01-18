@@ -8,34 +8,36 @@ using Eigen::Matrix;
 using Eigen::MatrixXd;
 
 // defining the parameters
-#define q 8192
+#define q 1000000
+// #define n 30
+// #define m 270
 #define n 30
 #define m 270
 #define e_min -1
 #define e_max 1
 
-int large = 0;
+long large = 0;
 
 // structures
 // public key
 struct publicKey
 {
-    Matrix<int, n, m> A;
-    Matrix<int, 1, m> bT;
+    Matrix<long, n, m> A;
+    Matrix<long, 1, m> bT;
 };
 
 // private key
 struct privateKey
 {
-    Matrix<int, n, m> A;
-    Matrix<int, 1, n> sT;
+    Matrix<long, n, m> A;
+    Matrix<long, 1, n> sT;
 };
 
 // cipher text
 struct cipherText
 {
-    Matrix<int, n, 1> u;
-    int u_;
+    Matrix<long, n, 1> u;
+    long u_;
 };
 
 // function to genarate keys
@@ -59,10 +61,10 @@ void genarateKeys(privateKey* private_key, publicKey* public_key)
     cout << "[LOG] Generating Matrix A" << endl;
 
     // Genarating the matrix A
-    int number = 0;
-    for (int i = 0; i < n; i++)
+    long number = 0;
+    for (long i = 0; i < n; i++)
     {
-        for (int j = 0; j < m; j++)
+        for (long j = 0; j < m; j++)
         {
             // filling the A matrix from the numbers taken from the distribution
             public_key->A(i, j) = uniform_dist_A_s(gen);
@@ -76,7 +78,7 @@ void genarateKeys(privateKey* private_key, publicKey* public_key)
 
     // genarating the s matrix
     cout << "[LOG] Generating Matrix s" << endl;
-    for (int col = 0; col < private_key->sT.cols(); col++)
+    for (long col = 0; col < private_key->sT.cols(); col++)
     {
         private_key->sT(col) = uniform_dist_A_s(gen);
     }
@@ -85,9 +87,9 @@ void genarateKeys(privateKey* private_key, publicKey* public_key)
 
     // genarating the error matrix
     cout << "[LOG] Generating Matrix e" << endl;
-    Matrix<int, 1, m> eT;
-    int total = 0;
-    for (int col = 0; col < eT.cols(); col++)
+    Matrix<long, 1, m> eT;
+    long total = 0;
+    for (long col = 0; col < eT.cols(); col++)
     {
         // e should be small and should choosen between -7,7 (discreate gausisan distribution [ignore for now])
         eT(col) = uniform_dist(gen);
@@ -105,7 +107,7 @@ void genarateKeys(privateKey* private_key, publicKey* public_key)
     cout << "b'_rows :" << public_key->bT.rows() << " b'_cols :" << public_key->bT.cols() << endl;
 
     // taking the modulus values of bT
-    for (int col = 0; col < public_key->bT.cols(); col++)
+    for (long col = 0; col < public_key->bT.cols(); col++)
     {
         public_key->bT(col) = ((public_key->bT(col) % q) + q)%q;
     }
@@ -114,15 +116,47 @@ void genarateKeys(privateKey* private_key, publicKey* public_key)
 
     // sharig A among public and private key
     private_key->A = public_key->A;
+
+    //debugging
+    cout << endl << "A" << endl;
+    for (long dr = 0; dr < private_key->A.rows(); dr++) {
+        for (long dc = 0; dc < private_key->A.cols(); dc++) {
+            cout << private_key->A(dr, dc) << " ";
+        }
+        cout << endl;
+    }
+    cout << endl << "eT" << endl;
+    for (long dr = 0; dr < eT.rows(); dr++) {
+        for (long dc = 0; dc < eT.cols(); dc++) {
+            cout << eT(dr, dc) << " ";
+        }
+        cout << endl;
+    }
+
+    cout << endl << "bT" << endl;
+    for (long dr = 0; dr < public_key->bT.rows(); dr++) {
+        for (long dc = 0; dc < public_key->bT.cols(); dc++) {
+            cout << public_key->bT(dr, dc) << " ";
+        }
+        cout << endl;
+    }
+
+    cout << endl << "sT" << endl;
+    for (long dr = 0; dr < private_key->sT.rows(); dr++) {
+        for (long dc = 0; dc < private_key->sT.cols(); dc++) {
+            cout << private_key->sT(dr, dc) << " ";
+        }
+        cout << endl;
+    }
 }
 
 // Encrypting Function
-cipherText encrypt(publicKey public_key, int message_bit)
+cipherText encrypt(publicKey public_key, long message_bit)
 {
     struct cipherText cipher_text;
     // Genarating the X matrix with random values
-    Matrix<int, m, 1> X;
-    for (int i = 0; i < m; i++)
+    Matrix<long, m, 1> X;
+    for (long i = 0; i < m; i++)
     {
         X(i) = rand() % 2;
     }
@@ -131,25 +165,44 @@ cipherText encrypt(publicKey public_key, int message_bit)
     // should take mod q
     cipher_text.u = (public_key.A) * X;
     // cout<<"[DEBUG] min of u : "<<cipher_text.u.minCoeff()<<" max of u : "<<cipher_text.u.maxCoeff()<<endl;
-    int bTx = (((public_key.bT * X) % q)+q)%q;
+    long bTx = (((public_key.bT * X) % q)+q)%q;
 
     // encrypting the bit
-    cipher_text.u_ = (((bTx + (message_bit * q / 2)) % q)+q)%q;
+    cipher_text.u_ = (((bTx + (message_bit * (q / 2))) % q)+q)%q;
 
     //cout<<"[DEBUG] u' : " <<cipher_text.u_ <<endl;
+
+    // debugging
+    cout << endl << "X" << endl;
+    for (long dr = 0; dr < X.rows(); dr++) {
+        for (long dc = 0; dc < X.cols(); dc++) {
+            cout << X(dr, dc) << " ";
+        }
+        cout << endl;
+    }
+
+    cout << endl << "u" << endl;
+    for (long dr = 0; dr < cipher_text.u.rows(); dr++) {
+        for (long dc = 0; dc < cipher_text.u.cols(); dc++) {
+            cout << cipher_text.u(dr, dc) << " ";
+        }
+        cout << endl;
+    }
+
+    cout << "u_ = " << cipher_text.u_ << endl;
 
     return cipher_text;
 }
 
 // Decrypting Funciton
-int decrypt(privateKey private_key, cipherText cipher_text)
+long decrypt(privateKey private_key, cipherText cipher_text)
 {
 
-    int sTu = ((private_key.sT) * (cipher_text.u)) % q;
+    long sTu = ((((private_key.sT) * (cipher_text.u)) % q)+q)%q;
 
     // recovering the single bit message
-    int recovered = 1;
-    if ((((cipher_text.u_ - sTu) % q)) <= q / 4)
+    long recovered = 1;
+    if ((abs(cipher_text.u_ - sTu) % q) <= q / 4)
     { // bit is 1
         recovered = 0;
     }
@@ -172,7 +225,7 @@ int main(int argc, char const *argv[])
     genarateKeys(&private_key, &public_key);
 
     // sample character to test
-    int message;
+    long message;
 
     cout << "Enter bit:: "; 
     cin >> message; 
@@ -181,10 +234,10 @@ int main(int argc, char const *argv[])
     // encrypting the message
     // cipherText cipher_text = encrypt(public_key, message);
     // decrypting the message
-    // int recovered_message = decrypt(private_key, cipher_text);
+    // long recovered_message = decrypt(private_key, cipher_text);
     // cout << "recovered : " << recovered_message << endl;
 
-     // Matrix <int,n,1>u;
+     // Matrix <long,n,1>u;
      // encrypt(&A,&b,plain,cipher,&u);
 
     // cout<<"plaintext letter :"<<plain<<" Recovered letter :"<<decrypt(&A,&u,cipher,&s)<<endl;
@@ -192,13 +245,18 @@ int main(int argc, char const *argv[])
     // // evaluating the success rate
      double success = 0;
      char result;
-     int rounds = 1000;
+     long rounds = 1000;
      for (size_t i = 0; i < rounds; i++)
      {
+         cout << "iteration = " << i << endl;
          cipherText cipher_text = encrypt(public_key, message);
-         int recovered_message = decrypt(private_key, cipher_text);
+         long recovered_message = decrypt(private_key, cipher_text);
          if(message == recovered_message)
              success++;
+        else {
+            cout << "recoverd message = " << recovered_message << endl;
+            return 0;
+        }
      }
      cout<<"Encryption and Decryption works "<<(success/rounds)* 100<<"% of time."<<endl;
      cout<<large<<endl;
