@@ -2,6 +2,7 @@
 #include "Eigen/Dense"
 #include <random>
 #include <ctime>
+#include "sodium.h"
 
 using namespace std;
 using Eigen::Matrix;
@@ -43,24 +44,19 @@ long mod(long value, long mod_value) {
     return ((value % mod_value) + mod_value) % mod_value;
 }
 
+// genarate uniform random numbers including the boundaries
+long genUniformRandomLong(int lowerBound, int upperBound) {
+    long range = (upperBound - lowerBound) + 1;
+    uint32_t randomNumber;
+    randomNumber = randombytes_uniform(range);
+    long randomNumberModified = ((long) randomNumber) + lowerBound;
+    return randomNumberModified;
+}
+
+
 // function to genarate keys
 void genarateKeys(privateKey* private_key, publicKey* public_key)
 {
-    // A and s should be choose from uniform distribution over Zq(0, q-1)
-    srand(time(0));
-    // defining randome number genarator with the seed as time
-    default_random_engine generator;
-    generator.seed(time(0));
-    // strong random number genarator other than default random number genarator in c++
-
-    // define a normal distribution to choose values
-    normal_distribution<double> distribution(64.0, 16.0);
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> uniform_dist(e_min, e_max);
-    std::uniform_int_distribution<> uniform_dist_A_s(0, q - 1);     // uniform distribution to A and s (0 to q - 1)
-    
-
     cout << "[LOG] Generating Matrix A" << endl;
 
     // Genarating the matrix A
@@ -70,7 +66,7 @@ void genarateKeys(privateKey* private_key, publicKey* public_key)
         for (long j = 0; j < m; j++)
         {
             // filling the A matrix from the numbers taken from the distribution
-            public_key->A(i, j) = uniform_dist_A_s(gen);
+            public_key->A(i, j) = genUniformRandomLong(0,q-1);
         }
     }
 
@@ -82,7 +78,7 @@ void genarateKeys(privateKey* private_key, publicKey* public_key)
     cout << "[LOG] Generating Matrix s" << endl;
     for (long col = 0; col < private_key->sT.cols(); col++)
     {
-        private_key->sT(col) = uniform_dist_A_s(gen);
+        private_key->sT(col) = genUniformRandomLong(0, q-1);
     }
     cout << "[DEBUG] Min of s : " << private_key->sT.minCoeff() << " Max of s : " << private_key->sT.maxCoeff() << endl;
     cout << "[LOG] Done" << endl;
@@ -94,7 +90,7 @@ void genarateKeys(privateKey* private_key, publicKey* public_key)
     for (long col = 0; col < eT.cols(); col++)
     {
         // e should be small and should choosen between -7,7 (discreate gausisan distribution [ignore for now])
-        eT(col) = uniform_dist(gen);
+        eT(col) = genUniformRandomLong(e_min, e_max);
         total += eT(col);
     }
     cout << "[DEBUG] min e: " << eT.minCoeff() << " max e: " << eT.maxCoeff() << " total :" << total << endl;
@@ -122,7 +118,7 @@ cipherText encrypt(publicKey public_key, long message_bit)
     Matrix<long, m, 1> X;
     for (long i = 0; i < m; i++)
     {
-        X(i) = rand() % 2;
+        X(i) = genUniformRandomLong(0,1);
     }
     // cout<<"[DEBUG] min of X : "<<X.minCoeff()<<" max of X : "<<X.maxCoeff()<<endl;
     // u = AX
