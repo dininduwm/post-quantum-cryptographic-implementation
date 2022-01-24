@@ -29,8 +29,8 @@ using Eigen::MatrixXd;
 // #define m 270
 #define n 30
 #define m 270
-#define e_min -1
-#define e_max 1
+#define e_min -7
+#define e_max 7
 
 // structures
 // public key
@@ -155,7 +155,8 @@ cipherText encrypt(publicKey public_key, long message_bit)
     cipher_text.bT = sT * (public_key.A) + eT;
 
     long sTu = sT * (public_key.u); 
-    cipher_text.b_ = mod((sTu + (message_bit * (q / 2))), q); // what is e'? eT * X??
+    long e_ = genUniformRandomLong(e_min, e_max);
+    cipher_text.b_ = mod((sTu + e_ + (message_bit * (q / 2))), q); // what is e'? eT * X??
 
 
     //cout<<"[DEBUG] u' : " <<cipher_text.u_ <<endl;
