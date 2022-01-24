@@ -112,3 +112,87 @@ void genarateKeys(privateKey* private_key, publicKey* public_key)
     
 }
 
+// Encrypting Function
+cipherText encrypt(publicKey public_key, long message_bit)
+{
+    struct cipherText cipher_text;
+
+    cout << "[LOG] Generating Matrix e" << endl;
+    Matrix<long, 1, m> eT;
+    long total = 0;
+    for (long col = 0; col < eT.cols(); col++)
+    {
+        // e should be small and should choosen between -7,7 (discreate gausisan distribution [ignore for now])
+        eT(col) = genUniformRandomLong(e_min, e_max);
+        total += eT(col);
+    }
+    cout << "[DEBUG] min e: " << eT.minCoeff() << " max e: " << eT.maxCoeff() << " total :" << total << endl;
+
+    // genarating the s matrix
+    Matrix<long, 1, n> sT;
+
+    cout << "[LOG] Generating Matrix s" << endl;
+    for (long col = 0; col < sT.cols(); col++)
+    {
+        sT(col) = genUniformRandomLong(0, q-1);
+    }
+    cout << "[DEBUG] Min of s : " << sT.minCoeff() << " Max of s : " << sT.maxCoeff() << endl;
+    cout << "[LOG] Done" << endl;
+
+    cipher_text.bT = sT * (public_key.A) + eT;
+
+    long sTu = sT * (public_key.u); 
+    cipher_text.b_ = mod((sTu + (message_bit * (q / 2))), q); // what is e'? eT * X??
+
+
+    //cout<<"[DEBUG] u' : " <<cipher_text.u_ <<endl;
+    return cipher_text;
+}
+
+// Decrypting Funciton
+long decrypt(privateKey private_key, cipherText cipher_text)
+{
+    long bTx = mod(((cipher_text.bT) * (private_key.x)), q);
+
+    // recovering the single bit message
+    long recovered = 1;
+    if ((abs(cipher_text.b_ - bTx) % q) <= q / 4)
+    { // bit is 1
+        recovered = 0;
+    }
+
+    return recovered;
+}
+
+int main(int argc, char const *argv[])
+{
+    // genarating keys
+    struct privateKey private_key;
+    struct publicKey public_key;
+    genarateKeys(&private_key, &public_key);
+
+    // sample character to test
+    long message;
+
+    cout << "Enter bit:: "; 
+    cin >> message; 
+
+    cout<<"################# INPUT:  "<< message <<endl;
+
+    // evaluating the success rate
+     double success = 0;
+     char result;
+     long rounds = 1000;
+     for (size_t i = 0; i < rounds; i++)
+     {
+         cout << "iteration = " << i << endl;
+         cipherText cipher_text = encrypt(public_key, message);
+         long recovered_message = decrypt(private_key, cipher_text);
+         if(message == recovered_message)
+             success++;
+     }
+     cout<<"Encryption and Decryption works "<<(success/rounds)* 100<<"% of time."<<endl;
+
+    return 0;
+}
+
