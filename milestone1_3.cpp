@@ -17,6 +17,7 @@
 #include "Eigen/Dense"
 #include <random>
 #include <ctime>
+#include "sodium.h"
 
 using namespace std;
 using Eigen::Matrix;
@@ -56,6 +57,18 @@ struct cipherText
 long mod(long value, long mod_value) {
     return ((value % mod_value) + mod_value) % mod_value;
 }
+
+// genarate uniform random numbers including the boundaries
+long genUniformRandomLong(int lowerBound, int upperBound) {
+    long range = (upperBound - lowerBound) + 1;
+    uint32_t randomNumber;
+    randomNumber = randombytes_uniform(range);
+    long randomNumberModified = ((long) randomNumber) + lowerBound;
+    return randomNumberModified;
+}
+
+
+
 // function to genarate keys
 void genarateKeys(privateKey* private_key, publicKey* public_key)
 {
