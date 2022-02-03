@@ -8,8 +8,9 @@ using namespace std;
 using Eigen::Matrix;
 using Eigen::MatrixXd;
 
+
 // defining the parameters
-#define q 1000000
+#define q 500
 // #define n 30
 // #define m 270
 #define n 30
@@ -17,6 +18,8 @@ using Eigen::MatrixXd;
 #define e_min -1
 #define e_max 1
 
+Matrix<long, 1, m> eT;
+long maxeTX = 0;
 // structures
 // public key
 struct publicKey
@@ -85,7 +88,7 @@ void genarateKeys(privateKey* private_key, publicKey* public_key)
 
     // genarating the error matrix
     cout << "[LOG] Generating Matrix e" << endl;
-    Matrix<long, 1, m> eT;
+    // Matrix<long, 1, m> eT;
     long total = 0;
     for (long col = 0; col < eT.cols(); col++)
     {
@@ -127,6 +130,12 @@ cipherText encrypt(publicKey public_key, long message_bit)
     // cout<<"[DEBUG] min of u : "<<cipher_text.u.minCoeff()<<" max of u : "<<cipher_text.u.maxCoeff()<<endl;
     long bTx = mod(((public_key.bT * X) % q), q);
 
+    long eTx = eT*X;
+    if (abs(eTx) > maxeTX){
+        maxeTX = abs(eTx);
+    }
+    cout << "eTx = " << eTx << endl;
+
     // encrypting the bit
     cipher_text.u_ = mod((bTx + (message_bit * (q / 2))), q);
 
@@ -141,7 +150,7 @@ long decrypt(privateKey private_key, cipherText cipher_text)
 
     // recovering the single bit message
     long recovered = 1;
-    if ((abs(cipher_text.u_ - sTu) % q) <= q / 4)
+    if ((abs(cipher_text.u_ - sTu)) <= q / 4)
     { // bit is 1
         recovered = 0;
     }
@@ -177,6 +186,8 @@ int main(int argc, char const *argv[])
              success++;
      }
      cout<<"Encryption and Decryption works "<<(success/rounds)* 100<<"% of time."<<endl;
+
+     cout << "Max eTx = " << maxeTX << endl;
 
     return 0;
 }
