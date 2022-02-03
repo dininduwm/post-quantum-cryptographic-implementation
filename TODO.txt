@@ -1,0 +1,2 @@
+implement discrete gaussian distribution. 
+alpha -> sqrt(n/q)

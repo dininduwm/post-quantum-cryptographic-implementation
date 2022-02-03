@@ -24,7 +24,7 @@ using Eigen::Matrix;
 using Eigen::MatrixXd;
 
 // defining the parameters
-#define q 500
+#define q 1000
 // #define n 30
 // #define m 270
 #define n 30
@@ -126,7 +126,7 @@ void genarateKeys(privateKey* private_key, publicKey* public_key)
 }
 
 // Encrypting Function
-cipherText encrypt(publicKey public_key, long message_bit)
+cipherText encrypt(publicKey public_key, long message_bit, privateKey private_key)
 {
     struct cipherText cipher_text;
 
@@ -162,7 +162,7 @@ cipherText encrypt(publicKey public_key, long message_bit)
     long e_ = genUniformRandomLong(e_min, e_max);
     cipher_text.b_ = mod((sTu + e_ + (message_bit * (q / 2))), q); // what is e'? eT * X??
 
-
+    cout<<abs(e_- eT*private_key.x)<<endl;
     //cout<<"[DEBUG] u' : " <<cipher_text.u_ <<endl;
     return cipher_text;
 }
@@ -204,7 +204,7 @@ int main(int argc, char const *argv[])
      for (size_t i = 0; i < rounds; i++)
      {
          cout << "iteration = " << i << endl;
-         cipherText cipher_text = encrypt(public_key, message);
+         cipherText cipher_text = encrypt(public_key, message, private_key);
          long recovered_message = decrypt(private_key, cipher_text);
          if(message == recovered_message)
              success++;

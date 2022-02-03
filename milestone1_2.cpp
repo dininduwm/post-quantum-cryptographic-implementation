@@ -10,13 +10,13 @@ using Eigen::MatrixXd;
 
 
 // defining the parameters
-#define q 500
+#define q 10000
 // #define n 30
 // #define m 270
 #define n 30
 #define m 270
-#define e_min -1
-#define e_max 1
+#define e_min -7
+#define e_max 7
 
 Matrix<long, 1, m> eT;
 long maxeTX = 0;
