@@ -24,7 +24,7 @@ using Eigen::Matrix;
 using Eigen::MatrixXd;
 
 // defining the parameters
-#define q 1000000
+#define q 500
 // #define n 30
 // #define m 270
 #define n 30
@@ -153,6 +153,10 @@ cipherText encrypt(publicKey public_key, long message_bit)
     cout << "[LOG] Done" << endl;
 
     cipher_text.bT = sT * (public_key.A) + eT;
+
+    for (long col = 0; col < cipher_text.bT.cols(); col++) {
+        cipher_text.bT(col) = mod(cipher_text.bT(col), q);
+    }
 
     long sTu = sT * (public_key.u); 
     long e_ = genUniformRandomLong(e_min, e_max);
