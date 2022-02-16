@@ -1,36 +1,43 @@
-// #include "sodium.h"
 #include <iostream>
-#include "Eigen/Dense"
 #include <random>
 #include <ctime>
 #include <cmath>
+#include "sodium.h"
 
-using namespace std;
-
+#define PI 3.14
 #define q 1000
 #define n 30
-#define PI 3.14
+#define m 270
+using namespace std;
 
-long discrete_gaussian_generator(double sigma){
-    
-    normal_distribution<double> distribution(0,sigma);
-    srand(time(0));
-    default_random_engine generator;
-    generator.seed(time(0));
-    double x = distribution(generator)%1;
-    cout<<x;
-    long y = int(ceil(q*x + 0.5)%q);
-    cout<<y<<endl;
-    return y;
+
+long gaussian(double sigma){
+
+    mt19937 gen(randombytes_random()); 
+    normal_distribution<double> gauss_dis{0,sigma};
+    double val = gauss_dis(gen);
+    if (val > 0.5)
+        val = val -1.0;
+    else if(val<-0.5)
+        val = val+1;
+    return long(val*q); 
 
 }
 
 int main(int argc, char const *argv[])
 {
-    double alpha = sqrt(n)/q;
-    double sigma = alpha/(2*PI);
-    long x = discrete_gaussian_generator(sigma);
+    
+    double alpha = sqrt(double(n))/q;
+    double sigma = alpha/sqrt(2*PI);
+    std::mt19937 gen(randombytes_random());    
+    std::normal_distribution<double> gauss_dis{0,sigma};
+
+    int count = 0;
+    while (count <100000)
+    {
+        cout<<gaussian(sigma)<<endl;
+        count++;
+    }
+       
     return 0;
 }
-
-
