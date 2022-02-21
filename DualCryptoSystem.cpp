@@ -161,7 +161,7 @@ cipherText encrypt(publicKey public_key, long message_bit)
     }
 
     long sTu = sT * (public_key.u); 
-    long e_ =  genUniformRandomLong(e_min, e_max);
+    long e_ =  gaussian(sigma);
     cipher_text.b_ = mod((sTu + e_ + (message_bit * (q / 2))), q); // what is e'? eT * X??
 
     // cout<<abs(e_- eT*private_key.x)<<endl;
