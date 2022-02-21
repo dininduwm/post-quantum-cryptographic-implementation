@@ -3,6 +3,7 @@
 #include <random>
 #include <ctime>
 #include "sodium.h"
+#include <cmath>
 
 using namespace std;
 using Eigen::Matrix;
@@ -16,6 +17,7 @@ using Eigen::MatrixXd;
 #define m 270
 #define e_min -1
 #define e_max 1
+#define PI 3.14
 // define the number of bits in the bit stream
 #define numberBits 10
 // structures
@@ -56,6 +58,19 @@ long genUniformRandomLong(int lowerBound, int upperBound)
     return randomNumberModified;
 }
 
+long gaussian(double sigma){
+
+    mt19937 gen(randombytes_random()); 
+    normal_distribution<double> gauss_dis{0,sigma};
+    double val = gauss_dis(gen);
+    if (val > 0.5)
+        val = val -1.0;
+    else if(val<-0.5)
+        val = val+1;
+    return long(val*q); 
+
+}
+
 // function to genarate keys
 void genarateKeys(privateKey *private_key, publicKey *public_key)
 {
@@ -87,12 +102,14 @@ void genarateKeys(privateKey *private_key, publicKey *public_key)
 
     // genarating the error matrix
     // cout << "[LOG] Generating Matrix e" << endl;
+    double alpha = sqrt(double(n))/q;
+    double sigma = alpha/sqrt(2*PI);
     Matrix<long, 1, m> eT;
     // long total = 0;
     for (long col = 0; col < eT.cols(); col++)
     {
         // e should be small and should choosen between -7,7 (discreate gausisan distribution [ignore for now])
-        eT(col) = genUniformRandomLong(e_min, e_max);
+        eT(col) = gaussian(sigma);
         // total += eT(col);
     }
     // cout << "[DEBUG] min e: " << eT.minCoeff() << " max e: " << eT.maxCoeff() << " total :" << total << endl;
