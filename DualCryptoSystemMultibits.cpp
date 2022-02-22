@@ -33,7 +33,7 @@ using Eigen::MatrixXd;
 #define e_min -7
 #define e_max 7
 #define PI 3.14
-#define numberBits 20
+#define numberBits 128
 
 // structures
 // public key
@@ -136,7 +136,7 @@ void genarateKeys(privateKey* private_key, publicKey* public_key)
 }
 
 // Encrypting Function
-cipherText encrypt(publicKey public_key, long message_bit[numberBits])
+cipherText encrypt(publicKey public_key, short message_bit[numberBits])
 {
     struct cipherText cipher_text;
 
@@ -192,10 +192,10 @@ cipherText encrypt(publicKey public_key, long message_bit[numberBits])
 }
 
 // Decrypting Funciton
-long* decrypt(privateKey private_key, cipherText cipher_text)
+short* decrypt(privateKey private_key, cipherText cipher_text)
 {
     Matrix<long, 1, numberBits> bTx;
-    static long recovered[numberBits];
+    static short recovered[numberBits];
 
     bTx = cipher_text.bT * private_key.x;
 
@@ -220,7 +220,7 @@ long* decrypt(privateKey private_key, cipherText cipher_text)
 }
 
 // check the correctness
-bool checkAnswer(long message_bits[numberBits], long recovered_bits[numberBits])
+bool checkAnswer(short message_bits[numberBits], short recovered_bits[numberBits])
 {
     long correctBits = 0;
     for (long i = 0; i < numberBits; i++)
@@ -239,7 +239,7 @@ bool checkAnswer(long message_bits[numberBits], long recovered_bits[numberBits])
 }
 
 // print an array of bits
-void printBits(long bit_array[numberBits])
+void printBits(short bit_array[numberBits])
 {
     for (long i = 0; i < numberBits; i++)
     {
@@ -262,18 +262,18 @@ int main(int argc, char const *argv[])
     // evaluating the success rate
     double success = 0;
     char result;
-    long rounds = 1000;
+    long rounds = 100;
     for (size_t i = 0; i < rounds; i++)
     {
         // sample character to test
-        long message[numberBits];
+        short message[numberBits];
         for (long i = 0; i < numberBits; i++)
         {
-            message[i] = genUniformRandomLong(0, 1);
+            message[i] = (short)genUniformRandomLong(0, 1);
         }
         //  cout << "iteration = " << i << endl;
         cipherText cipher_text = encrypt(public_key, message);
-        long *recovered_message = decrypt(private_key, cipher_text);
+        short *recovered_message = decrypt(private_key, cipher_text);
 
         //cout << "Encrypted: " ;
         //printBits(message);
