@@ -19,7 +19,7 @@ using Eigen::MatrixXd;
 #define e_max 1
 #define PI 3.14
 // define the number of bits in the bit stream
-#define numberBits 10
+#define numberBits 128
 // structures
 // public key
 struct publicKey
@@ -61,7 +61,7 @@ long genUniformRandomLong(int lowerBound, int upperBound)
 long gaussian(double sigma){
 
     mt19937 gen(randombytes_random()); 
-    normal_distribution<double> gauss_dis{0,sigma};
+    normal_distribution<double> gauss_dis(0,sigma);
     double val = gauss_dis(gen);
     if (val > 0.5)
         val = val -1.0;
@@ -241,7 +241,7 @@ int main(int argc, char const *argv[])
     for (size_t i = 0; i < rounds; i++)
     {
         // sample character to test
-        long message[10];
+        long message[numberBits];
         for (long i = 0; i < numberBits; i++)
         {
             message[i] = genUniformRandomLong(0, 1);
