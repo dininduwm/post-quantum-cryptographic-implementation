@@ -14,8 +14,8 @@ using Eigen::MatrixXd;
 long long q = 0;
 // #define n 30
 // #define m 270
-#define n 80
-#define m 120
+#define n 1000
+#define m 2000
 #define e_min -1
 #define e_max 1
 #define PI 3.14

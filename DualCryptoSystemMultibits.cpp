@@ -73,7 +73,7 @@ long genUniformRandomLong(int lowerBound, int upperBound) {
 long gaussian(double sigma){
 
     mt19937 gen(randombytes_random()); 
-    normal_distribution<double> gauss_dis{0,sigma};
+    normal_distribution<double> gauss_dis(0,sigma);
     double val = gauss_dis(gen);
     if (val > 0.5)
         val = val -1.0;

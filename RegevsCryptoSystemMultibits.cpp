@@ -19,7 +19,7 @@ using Eigen::MatrixXd;
 #define e_max 1
 #define PI 3.14
 // define the number of bits in the bit stream
-#define numberBits 128
+#define numberBits 256
 // structures
 // public key
 struct publicKey
@@ -110,8 +110,12 @@ void genarateKeys(privateKey *private_key, publicKey *public_key)
     {
         // e should be small and should choosen between -7,7 (discreate gausisan distribution [ignore for now])
         eT(col) = gaussian(sigma);
+        cout  << eT(col) << " ";
         // total += eT(col);
     }
+
+    cout << endl;
+    
     // cout << "[DEBUG] min e: " << eT.minCoeff() << " max e: " << eT.maxCoeff() << " total :" << total << endl;
 
     // calculating bT
@@ -237,7 +241,7 @@ int main(int argc, char const *argv[])
     // evaluating the success rate
     double success = 0;
     char result;
-    long rounds = 1000;
+    long rounds = 10;
     for (size_t i = 0; i < rounds; i++)
     {
         // sample character to test
