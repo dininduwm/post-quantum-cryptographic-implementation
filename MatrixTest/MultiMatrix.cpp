@@ -11,9 +11,9 @@ typedef long long lld;
 
 lld upperBound = 50;
 
-#define nval 5000
-#define mval 3000
-#define lval 5000
+#define nval 1000
+#define mval 800
+#define lval 1000
 
 // maximum number of threads
 #define MAX_THREAD 4
@@ -119,7 +119,7 @@ int main()
     mulMatNormal(matA, matB, matD, n, m, l);
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop - start);
-    cout << "Without Thread function = " << duration.count() << endl;
+    cout << "Without Thread function = " << duration.count()<< endl;
 
     // starting threaded applicaition
     lld** matC;
@@ -140,8 +140,10 @@ int main()
     th4.join();
 
     stop = high_resolution_clock::now();
-    duration = duration_cast<microseconds>(stop - start);
-    cout << "with Thread function = " << duration.count() << endl;
+    auto duration2 = duration_cast<microseconds>(stop - start);
+    cout << "with Thread function = " << duration2.count() << endl;
+    double speed = (duration.count()-duration2.count())*100/duration.count();
+    cout << speed << "% faster" << endl;
 
     if (checkAnswer(matC, matD)) {
         cout << "MultiThread Correct" << endl;
@@ -151,6 +153,5 @@ int main()
 
 
     // printMatrix(matD, n, l);
-
 	return 0;
 }

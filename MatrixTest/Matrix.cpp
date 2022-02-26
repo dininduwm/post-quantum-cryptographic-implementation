@@ -2,7 +2,7 @@
 // Multiplication Algorithm
 #include <iostream>
 #include "sodium.h"
-#include "Eigen/Dense"
+#include "../Eigen/Dense"
 #include <chrono>
 
 using namespace std::chrono;
@@ -14,9 +14,9 @@ using Eigen::MatrixXd;
 
 lld upperBound = 50;
 
-#define nval 500
-#define mval 300
-#define lval 500
+#define nval 50
+#define mval 30
+#define lval 50
 
 /* Strassen's Algorithm for matrix multiplication
 Complexity: O(n^2.808) */
@@ -360,29 +360,29 @@ int main()
 	// printMatrix(matC, n, l);
 
 
-    // // with eigen
-    // Matrix<lld, nval, mval> A;
-    // Matrix<lld, mval, lval> B;
-    // Matrix<lld, nval, lval> C;
+    // with eigen
+    Matrix<lld, nval, mval> A;
+    Matrix<lld, mval, lval> B;
+    Matrix<lld, nval, lval> C;
 
 
-    // for (int i = 0; i < n; i++) {
-    //     for (int j = 0; j < m; j++) {
-    //         A(i,j) = matA[i][j];
-    //     }
-    // }
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            A(i,j) = matA[i][j];
+        }
+    }
 
-    // for (int i = 0; i < m; i++) {
-    //     for (int j = 0; j < l; j++) {
-    //         B(i,j) = matB[i][j];
-    //     }
-    // }
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < l; j++) {
+            B(i,j) = matB[i][j];
+        }
+    }
 
-    // start = high_resolution_clock::now();
-    // C = A * B;
-    // stop = high_resolution_clock::now();
-    // duration = duration_cast<microseconds>(stop - start);
-    // cout << "Eigen function = " << duration.count() << endl;
+    start = high_resolution_clock::now();
+    C = A * B;
+    stop = high_resolution_clock::now();
+    duration = duration_cast<microseconds>(stop - start);
+    cout << "Eigen function = " << duration.count() << endl;
     
     // // for (int i = 0; i < n; i++) {
     // //     for (int j = 0; j < l; j++) {
@@ -392,11 +392,11 @@ int main()
     // // }
     // // cout << endl;
 
-    // if (checkAnswer(matC, C)) {
-    //     cout << "Eigen Correct" << endl;
-    // } else {
-    //     cout << "Eigen Wrong" << endl;
-    // }
+    if (checkAnswer(matC, C)) {
+        cout << "Eigen Correct" << endl;
+    } else {
+        cout << "Eigen Wrong" << endl;
+    }
 
 
     // normal matrix multiplication
