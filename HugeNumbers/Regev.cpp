@@ -2,13 +2,13 @@
 #include <random>
 #include <ctime>
 #include "sodium.h"
+#include "../Matrix/Matrix.h"
 #include <cmath>
-#include <thread>
 #include <chrono>
 
 using namespace std;
 using namespace std::chrono;
-typedef long long dtype;
+// typedef long long dtype;
 
 // defining the parameters
 // #define q 2000
@@ -49,103 +49,6 @@ struct cipherText
     dtype **u;
     dtype **u_;
 };
-
-// modulus function
-dtype mod(dtype value, dtype mod_value)
-{
-    return ((value % mod_value) + mod_value) % mod_value;
-}
-
-// Matrix oparations =================================
-
-// initializing the 2D matrix
-dtype **initMatrix(dtype **A, int row, int col)
-{
-    A = new dtype *[row];
-    for (int i = 0; i < row; i++)
-        A[i] = new dtype[col];
-    return A;
-}
-
-// matrix multiplication for threaded application
-void matMulSegment(dtype **mat1, dtype **mat2, dtype **result, int r1_start, int r1_stop, int c, int r2)
-{
-
-    for (int i = r1_start; i < r1_stop; i++)
-    {
-        for (int j = 0; j < r2; j++)
-        {
-            result[i][j] = 0;
-
-            for (int k = 0; k < c; k++)
-            {
-                dtype mul = 0;
-                if (mat1[i][k] && mat2[k][j])
-                    mul = mat1[i][k] * mat2[k][j];
-                    mul = mod(mul, q);
-                    result[i][j] += mul;
-                    result[i][j] = mod(result[i][j], q);
-            }
-        }
-    }
-}
-
-// matrix multiplication and addition for threaded application
-void matMulAddSegment(dtype **mat1, dtype **mat2, dtype **mat3, dtype **result, int r1_start, int r1_stop, int c, int r2)
-{
-
-    for (int i = r1_start; i < r1_stop; i++)
-    {
-        for (int j = 0; j < r2; j++)
-        {
-            result[i][j] = mat3[i][j];
-
-            for (int k = 0; k < c; k++)
-            {
-                dtype mul = mat1[i][k] * mat2[k][j];
-                mul = mod(mul, q);
-                result[i][j] += mul;
-                result[i][j] = mod(result[i][j], q);
-            }
-        }
-    }
-}
-
-// multiply matricies
-void matMul(dtype **mat1, dtype **mat2, dtype **result, int r1, int c, int r2)
-{
-    // note - resultent matrix should be initialized before calling this function
-    //  initializing the thread matrix
-    thread th1(matMulSegment, mat1, mat2, result, 0, r1 / 4, c, r2);
-    thread th2(matMulSegment, mat1, mat2, result, r1 / 4, r1 / 2, c, r2);
-    thread th3(matMulSegment, mat1, mat2, result, r1 / 2, 3 * r1 / 4, c, r2);
-    thread th4(matMulSegment, mat1, mat2, result, 3 * r1 / 4, r1, c, r2);
-
-    // joining the threads
-    th1.join();
-    th2.join();
-    th3.join();
-    th4.join();
-}
-
-// multiply matricies
-void matMulAdd(dtype **mat1, dtype **mat2, dtype **mat3, dtype **result, int r1, int c, int r2)
-{
-    // note - resultent matrix should be initialized before calling this function
-    //  initializing the thread matrix
-    thread th1(matMulAddSegment, mat1, mat2, mat3, result, 0, r1 / 4, c, r2);
-    thread th2(matMulAddSegment, mat1, mat2, mat3, result, r1 / 4, r1 / 2, c, r2);
-    thread th3(matMulAddSegment, mat1, mat2, mat3, result, r1 / 2, 3 * r1 / 4, c, r2);
-    thread th4(matMulAddSegment, mat1, mat2, mat3, result, 3 * r1 / 4, r1, c, r2);
-
-    // joining the threads
-    th1.join();
-    th2.join();
-    th3.join();
-    th4.join();
-}
-
-// End Matrix oparations =================================
 
 // genarate uniform random numbers including the boundaries
 dtype genUniformRandomlong(dtype lowerBound, dtype upperBound)
@@ -223,7 +126,7 @@ void genarateKeys(privateKey *private_key, publicKey *public_key)
     // calculating bT
     // public_key->bT = (private_key->sT) * (public_key->A) + eT;
     public_key->bT = initMatrix(public_key->bT, 1, m);
-    matMulAdd(private_key->sT, public_key->A, eT, public_key->bT, 1, n, m);
+    matMulAdd(private_key->sT, public_key->A, eT, public_key->bT, 1, n, m, q);
 
     // taking the modulus values of bT
     // for (dtype col = 0; col < public_key->bT.cols(); col++)
@@ -261,7 +164,7 @@ cipherText encrypt(publicKey public_key, dtype message_bit[numberBits])
     // intializing u matix
     cipher_text.u = initMatrix(cipher_text.u, n, numberBits);
     // cipher_text.u = (public_key.A) * X;
-    matMul(public_key.A, x, cipher_text.u, n, m, numberBits);
+    matMul(public_key.A, x, cipher_text.u, n, m, numberBits, q);
     // cout<<"[DEBUG] min of u : "<<cipher_text.u.minCoeff()<<" max of u : "<<cipher_text.u.maxCoeff()<<endl;
 
     // defining bTx
@@ -271,7 +174,7 @@ cipherText encrypt(publicKey public_key, dtype message_bit[numberBits])
     bTx = initMatrix(bTx, 1, numberBits);
 
     // bTx = public_key.bT * X;
-    matMul(public_key.bT, x, bTx, 1, m, numberBits);
+    matMul(public_key.bT, x, bTx, 1, m, numberBits, q);
 
     // // taking the modulus of bTx
     // // for (dtype i = 0; i < numberBits; i++)
@@ -301,7 +204,7 @@ dtype *decrypt(privateKey private_key, cipherText cipher_text)
     sTu = initMatrix(sTu, 1, numberBits);
 
     // sTu = (private_key.sT) * (cipher_text.u);
-    matMul(private_key.sT, cipher_text.u, sTu, 1, n, numberBits);
+    matMul(private_key.sT, cipher_text.u, sTu, 1, n, numberBits, q);
     // array to hold the recoverd bits
     static dtype recovered[numberBits];
     dtype difference = 0;
