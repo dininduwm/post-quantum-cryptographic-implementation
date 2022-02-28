@@ -6,6 +6,9 @@ Latis based post quantum cryptographic algorithm implementation
     - installation:
         - #### on Ubuntu: sudo apt-get install -y libsodium-dev
         - #### on Mac:    brew install libsodium
+2. ### boost
+    - installation:
+        - #### on ubuntu : sudo apt-get install libboost-all-dev
 
 ## compilation
 g++ input.cpp -o output -lsodium -DEIGEN_STACK_ALLOCATION_LIMIT=0

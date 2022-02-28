@@ -60,6 +60,14 @@ dtype genUniformRandomlong(dtype lowerBound, dtype upperBound)
     return randomNumberModified;
 }
 
+dtype half(dtype q){
+    if (q&1==1){
+        return (q>>1)+1;
+    }else{
+        return q>>1;
+    }
+}
+
 dtype gaussian(double sigma)
 {
 
@@ -187,7 +195,7 @@ cipherText encrypt(publicKey public_key, dtype message_bit[numberBits])
     cipher_text.u_ = initMatrix(cipher_text.u_, 1, numberBits);
     for (int i = 0; i < numberBits; i++)
     {
-        cipher_text.u_[0][i] = mod((bTx[0][i] + (message_bit[i] * (q / 2))), q);
+        cipher_text.u_[0][i] = mod((bTx[0][i] + (message_bit[i] * half(q))), q);
     }
 
     // // cout<<"[DEBUG] u' : " <<cipher_text.u_ <<endl;
