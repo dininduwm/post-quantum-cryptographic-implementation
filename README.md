@@ -9,7 +9,9 @@ Latis based post quantum cryptographic algorithm implementation
 2. ### boost
     - installation:
         - #### on ubuntu : sudo apt-get install libboost-all-dev
-
+3. ### crypto++
+    - installation:
+        - #### on ubuntu : sudo apt-get install libcrypto++-dev libcrypto++-doc libcrypto++-utils
 ## compilation
 g++ input.cpp -o output -lsodium -DEIGEN_STACK_ALLOCATION_LIMIT=0
 g++ input.cpp -pthread -lsodium -std=c++11 ../Matrix/Matrix.cpp
