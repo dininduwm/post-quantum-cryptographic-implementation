@@ -1,8 +1,8 @@
 #include <iostream>
 #include <thread>
+#include <boost/multiprecision/cpp_int.hpp>
 
 typedef long long dtype;
-
 // initializing the 2D matrix
 dtype **initMatrix(dtype **A, int row, int col);
 // matrix multiplication for threaded application

@@ -1,6 +1,7 @@
 #include "Matrix.h"
 
 using namespace std;
+using namespace boost::multiprecision;
 // typedef long long dtype;
 
 // modulus function
@@ -9,6 +10,18 @@ dtype mod(dtype value, dtype mod_value)
     return ((value % mod_value) + mod_value) % mod_value;
 }
 
+
+dtype element_mul(dtype val1,dtype val2,dtype q){
+
+    if (val1 ==0 || val2==0){
+        return (dtype)0;
+    }
+    int128_t result = (int128_t) val1* val2;
+    //first get modulo by q and then cast it to dtype
+    dtype mod_res = (dtype)(result%q);
+    //use mod again to map between[0,q)
+    return mod(mod_res,q);
+}
 // Matrix oparations =================================
 
 // initializing the 2D matrix
