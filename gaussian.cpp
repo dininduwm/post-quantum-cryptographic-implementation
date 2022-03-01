@@ -33,6 +33,6 @@ int main(int argc, char const *argv[])
     }
     auto end = sc.now();
     auto time_span = static_cast<chrono::duration<double>>(end - start);   // measure time span between start & end
-    cout<<"Operation took: "<<time_span.count()<<" seconds !!!";
+    cout<<"Operation took: "<<time_span.count()<<" seconds !!!"<<endl;
     return 0;
 }

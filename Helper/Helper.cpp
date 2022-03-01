@@ -40,3 +40,12 @@ dtype half(dtype q){
     }
 }
 
+long genUniformRandomLong(int lowerBound, int upperBound)
+{
+	long range = (upperBound - lowerBound) + 1;
+	uint32_t randomNumber;
+	randomNumber = randombytes_uniform(range);
+	long randomNumberModified = ((long)randomNumber) + lowerBound;
+	return randomNumberModified;
+}
+
