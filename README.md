@@ -13,9 +13,11 @@ Latis based post quantum cryptographic algorithm implementation
     - installation:
         - #### on ubuntu : sudo apt-get install libcrypto++-dev libcrypto++-doc libcrypto++-utils
 ## compilation
+
 g++ input.cpp -o output -lsodium -DEIGEN_STACK_ALLOCATION_LIMIT=0
 g++ input.cpp -pthread -lsodium -std=c++11 ../Matrix/Matrix.cpp
-
+#### if including helper functions
+g++ input.cpp -o output ../Helper/Helper.cpp
 ## For Regev Hybrid Crypto system compilation
 g++ -DNDEBUG=1 -g3 -O2 -Wextra AESRegevsCryptoSystemMultibits.cpp -o hybrid -lcryptopp -lsodium -DEIGEN_STACK_ALLOCATION_LIMIT=0
 
