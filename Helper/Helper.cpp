@@ -2,6 +2,7 @@
 
 using namespace std;
 using namespace boost::multiprecision;
+
 long gaussian(double sigma, dtype q){
 
     mt19937 gen(randombytes_random()); 
@@ -49,3 +50,21 @@ long genUniformRandomLong(int lowerBound, int upperBound)
 	return randomNumberModified;
 }
 
+/*
+short * binConvert(byte* input,int AESKeyLength) 
+{
+
+  short*  bitstream = new short[AESKeyLength * 8];
+
+  
+  for (int i = 0; i < AESKeyLength; ++i)
+   {
+	for (int j = 0; j < 8; ++j) 
+		{
+		  bitstream[ (i*8 - j + 7)] = (input[i] >> j) & 1;    
+		}
+   } 
+   
+   return bitstream;
+}
+*/
