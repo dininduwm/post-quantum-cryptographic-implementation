@@ -1,8 +1,6 @@
-#include <iostream>
-// #include "./AESHelper/AESHelper.h"
-#include <cstddef>
-
+#include"AESHelper.h"
 using namespace std;
+
 short * binConvert(byte* input,int AESKeyLength) 
 {
 
@@ -18,9 +16,4 @@ short * binConvert(byte* input,int AESKeyLength)
    } 
    
    return bitstream;
-}
-
-int main(){
-    std::cout<<"Fine\n";
-    return 0;
 }
