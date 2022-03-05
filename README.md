@@ -8,7 +8,8 @@ Latis based post quantum cryptographic algorithm implementation
         - #### on Mac:    brew install libsodium
 2. ### boost
     - installation:
-        - #### on ubuntu : sudo apt-get install libboost-all-dev
+        - #### on Ubuntu : sudo apt-get install libboost-all-dev
+        - #### on Mac: brew install boost
 3. ### crypto++
     - installation:
         - #### on ubuntu : sudo apt-get install libcrypto++-dev libcrypto++-doc libcrypto++-utils
