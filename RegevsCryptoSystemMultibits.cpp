@@ -4,7 +4,7 @@
 #include <ctime>
 #include "sodium.h"
 #include <cmath>
-
+#include <chrono>
 using namespace std;
 using Eigen::Matrix;
 using Eigen::MatrixXd;
@@ -22,6 +22,8 @@ using Eigen::MatrixXd;
 #define numberBits 256
 // structures
 // public key
+double T=0;
+double T2 = 0;
 struct publicKey
 {
     Matrix<long, n, m> A;
@@ -138,6 +140,8 @@ cipherText encrypt(publicKey public_key, long message_bit[numberBits])
 {
     struct cipherText cipher_text;
     // Genarating the X matrix with random values
+    chrono::steady_clock sc;
+    auto start = sc.now();
     Matrix<long, m, numberBits> X;
     for (long i = 0; i < m; i++)
     {
@@ -167,6 +171,10 @@ cipherText encrypt(publicKey public_key, long message_bit[numberBits])
     }
 
     // cout<<"[DEBUG] u' : " <<cipher_text.u_ <<endl;
+    auto end = sc.now();
+    auto time_span = static_cast<chrono::duration<double>>(end - start);   // measure time span between start & end
+    // cout<<"[DECRYPT] Initializing Operation took: "<<time_span.count()<<" seconds !!!"<<endl;
+    T2+=time_span.count();
     return cipher_text;
 }
 
@@ -174,12 +182,24 @@ cipherText encrypt(publicKey public_key, long message_bit[numberBits])
 long *decrypt(privateKey private_key, cipherText cipher_text)
 {
     // defining sTu
+    chrono::steady_clock sc;
+    auto start = sc.now();
     Matrix<long, 1, numberBits> sTu;
+    auto end = sc.now();
+    auto time_span = static_cast<chrono::duration<double>>(end - start);   // measure time span between start & end
+    // cout<<"[DECRYPT] Initializing Operation took: "<<time_span.count()<<" seconds !!!"<<endl;
+    T+=time_span.count();
+    start = sc.now();
     sTu = (private_key.sT) * (cipher_text.u);
+    end = sc.now();
+    time_span = static_cast<chrono::duration<double>>(end - start);   // measure time span between start & end
+    // cout<<"[DECRYPT] Multiplying sT*u Operation took: "<<time_span.count()<<" seconds !!!"<<endl;
+    T+=time_span.count();
     // array to hold the recoverd bits
     static long recovered[numberBits];
     long difference = 0;
 
+    start = sc.now();
     for (long i = 0; i < numberBits; i++)
     {
         sTu(0, i) = mod(sTu(0, i), q);
@@ -194,7 +214,10 @@ long *decrypt(privateKey private_key, cipherText cipher_text)
             recovered[i] = 0;
         }
     }
-
+    end = sc.now();
+    time_span = static_cast<chrono::duration<double>>(end - start);   // measure time span between start & end
+    // cout<<"[DECRYPT] For loop decrypt Operation took: "<<time_span.count()<<" seconds !!!"<<endl;
+    T+=time_span.count();
     return recovered;
 }
 
@@ -226,6 +249,7 @@ void printBits(long bit_array[numberBits])
     }
 }
 
+
 int main(int argc, char const *argv[])
 {
     // genarating keys
@@ -241,7 +265,7 @@ int main(int argc, char const *argv[])
     // evaluating the success rate
     double success = 0;
     char result;
-    long rounds = 10;
+    long rounds = 1000;
     for (size_t i = 0; i < rounds; i++)
     {
         // sample character to test
@@ -254,22 +278,25 @@ int main(int argc, char const *argv[])
         cipherText cipher_text = encrypt(public_key, message);
         long *recovered_message = decrypt(private_key, cipher_text);
 
-        cout << "Encrypted: " ;
-        printBits(message);
-        cout << " Decrypted: ";
-        printBits(recovered_message);
-
+        // cout << "Encrypted: " ;
+        // printBits(message);
+        // cout << " Decrypted: ";
+        // printBits(recovered_message);
+/*
         if (checkAnswer(message, recovered_message))
         {
             success++;
-            cout << "  correct";
+            // cout << "  correct";
         } else {
-            cout << "   incorrect";
+            // cout << "   incorrect";
         }
-
-        cout << endl;
+*/
+        // cout << endl;
     }
-    cout << "Encryption and Decryption works " << (success / rounds) * 100 << "% of time." << endl;
-
+    // cout << "Encryption and Decryption works " << (success / rounds) * 100 << "% of time." << endl;
+    cout<<"Average time for decryption: "<<T/rounds<<endl;
+    cout<<"Total time for decryption: "<<T<<endl;
+    cout<<"Average time for encryption: "<<T2/rounds<<endl;
+    cout<<"Total time for encryption: "<<T2<<endl;
     return 0;
 }

@@ -15,24 +15,13 @@ dtype genUniformRandomlong(dtype lowerBound, dtype upperBound)
 
 int main(int argc, char const *argv[])
 {
-  dtype q = 1<<30;
-  // unsigned long tmp1 = 1;
-  // tmp1 = tmp1 << 31;
-  // q = tmp1 - 19;
-  // q = LLONG_MAX;
-  // q = q>>5;
-  long s = LONG_MAX;
-  cout<<s<<endl;
-  cout<<LLONG_MAX<<endl;
-  cout<<INT32_MAX<<endl;
-  cout<<sizeof(long long)<<endl;
-  cout<<sizeof(long)<<endl;
-  cout<<sizeof(int)<<endl;
-  cout<<q<<endl;  
-  cout<<hex<<q<<endl;
-  // for (int i = 0; i < 1000000; i++)
-  // {
-  //   // printf(genUniformRandomlong(0,q-1));
-  // }
+  // dtupe temp = 1
+  size_t x = 1;
+  void * buf;
+  const unsigned char seed[1] = {'a'};
+  // void randombytes_buf_deterministic(void * const buf, const size_t size,
+  //                                  const unsigned char seed[randombytes_SEEDBYTES]);
+  cout<<randombytes_SEEDBYTES<<endl;
+  randombytes_buf_deterministic();
   return 0;
 }
