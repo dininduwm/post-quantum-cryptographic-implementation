@@ -1,18 +1,18 @@
-#include "crypto++/aes.h"
-#include "crypto++/modes.h"
+#include <crypto++/aes.h>
+#include <crypto++/modes.h>
 #include <stdio.h>
 #include <string.h>
 #include <iostream>
 #include <string>
 #include <string>
 #include <cstdlib>
-#include "crypto++/cryptlib.h"
-#include "crypto++/hex.h"
-#include "crypto++/filters.h"
-#include "crypto++/ccm.h"
-#include "crypto++/files.h"
+#include <crypto++/cryptlib.h>
+#include <crypto++/hex.h>
+#include <crypto++/filters.h>
+#include <crypto++/ccm.h>
+#include <crypto++/files.h>
 #include "assert.h"
-#include "crypto++/osrng.h"
+#include <crypto++/osrng.h>
 #include <iostream>
 #include <random>
 #include <ctime>
@@ -35,7 +35,7 @@ using CryptoPP::StreamTransformationFilter;
 using CryptoPP::Exception;
 using CryptoPP::AutoSeededRandomPool;
 using CryptoPP::Redirector;
-using CryptoPP::byte;
+// using CryptoPP::byte;
 using CryptoPP::MeterFilter;
 using CryptoPP::word64;
 using CryptoPP::FileSource;
@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
       MeterFilter meter;
       StreamTransformationFilter filter(encryptor);
      
-      FileSource source("plain.bin", false);
+      FileSource source("plain.jpg", false);
       FileSink sink("cipher.bin");
  
       source.Attach(new Redirector(filter));
@@ -82,6 +82,40 @@ int main(int argc, char* argv[])
       // Signal there is no more data to process.
       // The dtor's will do this automatically.
       filter.MessageEnd();
+
+      cout << "Encryption Complete" << endl;
+
+      CTR_Mode<AES>::Encryption decryptor;
+      decryptor.SetKeyWithIV(key, sizeof(key), iv);
+
+      MeterFilter meter_2;
+      StreamTransformationFilter filter_2(decryptor);
+     
+      FileSource source_2("cipher.bin", false);
+      FileSink sink_2("recovered.jpg");
+ 
+      source_2.Attach(new Redirector(filter_2));
+      filter_2.Attach(new Redirector(meter_2));
+      meter_2.Attach(new Redirector(sink_2));
+
+      processed = 0;
+	  
+      while(!EndOfFile(source_2) && !source_2.SourceExhausted())
+      {
+        source_2.Pump(BLOCK_SIZE);
+        filter_2.Flush(false);
+
+        processed += BLOCK_SIZE;
+
+        if (processed % (1024*1024*10) == 0)
+          cout << "Processed: " << meter.GetTotalBytes() << endl;
+      }
+  
+      // Signal there is no more data to process.
+      // The dtor's will do this automatically.
+      filter.MessageEnd();
+
+
   }
   catch(const Exception& ex)
   {
