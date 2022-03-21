@@ -403,7 +403,7 @@ int main(int argc, char* argv[])
 
    for (int i = 0; i < rounds; ++i)
    {
-   		AES.AESCipherText = AESencrypt(key, iv, message);
+   	AES.AESCipherText = AESencrypt(key, iv, message);
 
 		AES.AESKey = RegevEncrypt(public_key, binKey);
 		AES.AESIv = RegevEncrypt(public_key, binIV);

@@ -40,8 +40,8 @@ using CryptoPP::word64;
 dtype q = 0;
 // #define n 30
 // #define m 270
-#define n 100
-#define m 200
+#define n 500
+#define m 1000
 #define e_min -1
 #define e_max 1
 #define PI 3.14
@@ -496,34 +496,76 @@ int main(int argc, char const *argv[])
     cout << "q = " << q << endl;
 
     // Generating Regev keys
+    auto start = high_resolution_clock::now();
     struct privateKey private_key;
     struct publicKey public_key;
     genarateRegevKeys(&private_key, &public_key);
+    // Generating Regev keys END
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>(stop - start);
+    double time = duration.count();
+    time = time / 1000000;
+    cout << "Key Genaration time Regev = " << time << " s" << endl;
 
     // Encryption process ==============================================================
 
+    start = high_resolution_clock::now();
     // Genarating AES Key and Iv
     AESKeyAndIv aesData = generateAESKey();
+    // Genarating AES Key and Iv END
+    stop = high_resolution_clock::now();
+    duration = duration_cast<microseconds>(stop - start);
+    time = duration.count();
+    time = time / 1000000;
+    cout << "Key Genaration time AES = " << time << " s" << endl;
 
     // conver to bits
     short *aesDataBin = AESDataToBinConvert(aesData);
 
+    start = high_resolution_clock::now();
     // encrypting AES Key Data using Regev
     cipherText cipher_text = encryptRegev(public_key, aesDataBin);
+    // encrypting AES Key Data using Regev END
+    stop = high_resolution_clock::now();
+    duration = duration_cast<microseconds>(stop - start);
+    time = duration.count();
+    time = time / 1000000;
+    cout << "Regev Encryption time (Encrypting AES Key) = " << time << " s" << endl;
 
+    start = high_resolution_clock::now();
     // AES Encryption Process
     encryptAES(aesData);
+    // AES Encryption Process END
+    stop = high_resolution_clock::now();
+    duration = duration_cast<microseconds>(stop - start);
+    time = duration.count();
+    time = time / 1000000;
+    cout << "AES Encryption time (Encrypting File) = " << time << " s" << endl;
 
     // Decryption process ==============================================================
 
-    //decrypting AES Key data using Regev
+    start = high_resolution_clock::now();
+    // decrypting AES Key data using Regev
     short *aesDataBinRecovered = decryptRegev(private_key, cipher_text);
+    // decrypting AES Key data using Regev END
+    stop = high_resolution_clock::now();
+    duration = duration_cast<microseconds>(stop - start);
+    time = duration.count();
+    time = time / 1000000;
+    cout << "Regev Decryption time (Decrypting AES Key) = " << time << " s" << endl;
 
     // Converting binary data back to AES key and Iv
     AESKeyAndIv convertedData = binToAESData(aesDataBin);
 
+    start = high_resolution_clock::now();
     // AES Decryption
     decryptAES(convertedData);
+    // AES Decryption END
+    stop = high_resolution_clock::now();
+    duration = duration_cast<microseconds>(stop - start);
+    time = duration.count();
+    time = time / 1000000;
+    cout << "AES Decryption time (Decrypting File) = " << time << " s" << endl;
 
     return 0;
 }
