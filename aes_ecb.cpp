@@ -30,6 +30,7 @@ using CryptoPP::StreamTransformationFilter;
 #include <string>
 using std::string;
 using namespace CryptoPP;
+using Eigen::Matrix;
 #define n 2
 #define m 10
 // need to check the time for 16 byte key with 4 integers at a time, 
@@ -117,8 +118,16 @@ void printSeed(union un key){
     cout<<endl;
 }
 
-void gen_A(union un key){
+void gen_A(union un key,Matrix<int,n,m>*A){
     union un plain;
+    plain.short_buff[0] = 0;
+    plain.short_buff[1] = 0;
+    plain.short_buff[2] = 0;
+    plain.short_buff[3] = 0;
+    plain.short_buff[4] = 0;
+    plain.short_buff[5] = 0;
+    plain.short_buff[6] = 0;
+    plain.short_buff[7] = 0;
     union un1 cipher;
     ECB_Mode< AES >::Encryption encrypt;
     encrypt.SetKey(key.buff, sizeof(key.buff));
@@ -135,10 +144,11 @@ void gen_A(union un key){
             // encoder.MessageEnd();
             for(size_t k=0;k<4;k++){
                 cout<<cipher.int_buf[k]<<" ";
-                //
-                // if j+k < m {
-                //     a[i][j+k] = mod(cipher.short_buff[k]);
-                // }
+                
+                if j+k < m {
+                    // mod function needs to be implemented
+                    // A(i,j+k) = mod(cipher.int_buf[k]);
+                }
             }
             cout<<endl;
         }
@@ -148,6 +158,7 @@ void gen_A(union un key){
 
 }
 
+
 int main(int argc, char const *argv[])
 {
     AutoSeededRandomPool prng;
@@ -156,6 +167,7 @@ int main(int argc, char const *argv[])
     union un recovered;
     union un1 recover1;
     union un1 cipher;   //with padding it generates larger thing.
+    Matrix<int,n,m>A;
     plain.short_buff[0] = 0;
     plain.short_buff[1] = 0;
     plain.short_buff[2] = 0;
@@ -190,10 +202,10 @@ int main(int argc, char const *argv[])
     cout<<endl;
     printSeed(key);
     cout<<"From gen_A(Key)"<<endl;
-    gen_A(key);
+    gen_A(key,&A);
     cout<<"_____________"<<endl;
     cout<<"From gen_A(Key)"<<endl;
-    gen_A(key);
+    gen_A(key,&A);
     cout<<"_____________"<<endl;
     cout<<"in main"<<endl;
     for (int16_t i = 0; i < n; i++)
