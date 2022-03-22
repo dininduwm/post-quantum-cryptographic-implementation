@@ -1,4 +1,5 @@
 #include <iostream>
+#include "Eigen/Dense"
 using std::cout;
 using std::cerr;
 using std::endl;
@@ -30,8 +31,9 @@ using CryptoPP::StreamTransformationFilter;
 using std::string;
 using namespace CryptoPP;
 #define n 2
-#define m 80
-
+#define m 10
+// need to check the time for 16 byte key with 4 integers at a time, 
+// and 32 byte key with 8 integers at a time. 
 union un{
     byte buff[16];
     // std::bitset<128> bitset_buff;
@@ -61,30 +63,69 @@ void printArray(int16_t array[8]){
     }
     cout<<" ]"<<endl;  
 }
-/*
-void generate_A(byte key[16]){
-    union un seed;
-    union un plain;
-    union un1 cipher; 
+
+// void generate_A(byte key[16]){
+//     union un seed;
+//     union un plain;
+//     union un1 cipher; 
+//     HexEncoder encoder(new FileSink(cout));
+//     plain.short_buff[0] = 0;
+//     plain.short_buff[1] = 0;
+//     plain.short_buff[2] = 0;
+//     plain.short_buff[3] = 0;
+//     plain.short_buff[4] = 0;
+//     plain.short_buff[5] = 0;
+//     plain.short_buff[6] = 0;
+//     plain.short_buff[7] = 0;
+//     memcpy(&seed.buff,&key,sizeof(byte)*16);
+//     ECB_Mode< AES >::Encryption encrypt;
+//     encrypt.SetKey(seed.buff, sizeof(seed.buff));
+//     cout<<"Key : "<<endl;
+//     encoder.Put(seed.buff,sizeof(seed.buff));
+//     encoder.MessageEnd();
+//     cout<<endl;
+//     for (int16_t i = 0; i < n; i++)
+//     {
+//         for (int16_t j = 0; j < m; j=j+8)
+//         {
+//             plain.short_buff[0] = i;
+//             plain.short_buff[1] = j;
+//             ArraySink cs(&cipher.buff[0],sizeof(cipher.buff));
+//             ArraySource (plain.buff,sizeof(plain.buff),true,new StreamTransformationFilter(encrypt,new Redirector(cs)));
+//             // encoder.Put(cipher.buff,sizeof(cipher));
+//             // encoder.MessageEnd();
+//             for(size_t k=0;k<8;k++){
+//                 cout<<cipher.short_buff[k]<<" ";
+//                 //
+//                 // if j+k < m {
+//                 //     a[i][j+k] = mod(cipher.short_buff[k]);
+//                 // }
+//             }
+//             cout<<endl;
+//         }
+        
+//     }
+
+
+// }
+
+void printSeed(union un key){
     HexEncoder encoder(new FileSink(cout));
-    plain.short_buff[0] = 0;
-    plain.short_buff[1] = 0;
-    plain.short_buff[2] = 0;
-    plain.short_buff[3] = 0;
-    plain.short_buff[4] = 0;
-    plain.short_buff[5] = 0;
-    plain.short_buff[6] = 0;
-    plain.short_buff[7] = 0;
-    memcpy(&seed.buff,&key,sizeof(byte)*16);
-    ECB_Mode< AES >::Encryption encrypt;
-    encrypt.SetKey(seed.buff, sizeof(seed.buff));
     cout<<"Key : "<<endl;
-    encoder.Put(seed.buff,sizeof(seed.buff));
+    encoder.Put(key.buff,sizeof(key.buff));
     encoder.MessageEnd();
     cout<<endl;
+}
+
+void gen_A(union un key){
+    union un plain;
+    union un1 cipher;
+    ECB_Mode< AES >::Encryption encrypt;
+    encrypt.SetKey(key.buff, sizeof(key.buff));
+    printSeed(key);
     for (int16_t i = 0; i < n; i++)
     {
-        for (int16_t j = 0; j < m; j=j+8)
+        for (int16_t j = 0; j < m; j=j+4)
         {
             plain.short_buff[0] = i;
             plain.short_buff[1] = j;
@@ -92,8 +133,8 @@ void generate_A(byte key[16]){
             ArraySource (plain.buff,sizeof(plain.buff),true,new StreamTransformationFilter(encrypt,new Redirector(cs)));
             // encoder.Put(cipher.buff,sizeof(cipher));
             // encoder.MessageEnd();
-            for(size_t k=0;k<8;k++){
-                cout<<cipher.short_buff[k]<<" ";
+            for(size_t k=0;k<4;k++){
+                cout<<cipher.int_buf[k]<<" ";
                 //
                 // if j+k < m {
                 //     a[i][j+k] = mod(cipher.short_buff[k]);
@@ -106,7 +147,7 @@ void generate_A(byte key[16]){
 
 
 }
-*/
+
 int main(int argc, char const *argv[])
 {
     AutoSeededRandomPool prng;
@@ -147,6 +188,14 @@ int main(int argc, char const *argv[])
     encoder.Put(key.buff,sizeof(key.buff));
     encoder.MessageEnd();
     cout<<endl;
+    printSeed(key);
+    cout<<"From gen_A(Key)"<<endl;
+    gen_A(key);
+    cout<<"_____________"<<endl;
+    cout<<"From gen_A(Key)"<<endl;
+    gen_A(key);
+    cout<<"_____________"<<endl;
+    cout<<"in main"<<endl;
     for (int16_t i = 0; i < n; i++)
     {
         for (int16_t j = 0; j < m; j=j+4)
@@ -180,6 +229,7 @@ int main(int argc, char const *argv[])
     encoder.Put(key.buff,sizeof(key.buff));
     encoder.MessageEnd();
     cout<<endl;
+    cout<<"From main"<<endl;
     for (int16_t i = 0; i < n; i++)
     {
         for (int16_t j = 0; j < m; j=j+4)
