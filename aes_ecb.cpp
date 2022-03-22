@@ -145,7 +145,7 @@ void gen_A(union un key,Matrix<int,n,m>*A){
             for(size_t k=0;k<4;k++){
                 cout<<cipher.int_buf[k]<<" ";
                 
-                if j+k < m {
+                if (j+k < m) {
                     // mod function needs to be implemented
                     // A(i,j+k) = mod(cipher.int_buf[k]);
                 }
