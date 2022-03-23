@@ -7,21 +7,21 @@
 #include <chrono>
 
 // for AES
-#include <crypto++/aes.h>
-#include <crypto++/modes.h>
-#include <crypto++/cryptlib.h>
-#include <crypto++/hex.h>
-#include <crypto++/filters.h>
-#include <crypto++/ccm.h>
-#include <crypto++/files.h>
-#include <crypto++/osrng.h>
+#include "../cryptopp/aes.h"
+// #include "../cryptopp/modes.h>"
+#include "../cryptopp/hex.h"
+#include "../cryptopp/filters.h"
+#include "../cryptopp/ccm.h"
+#include "../cryptopp/files.h"
+#include "../cryptopp/osrng.h"
 
 using namespace std;
 using namespace std::chrono;
 
-//for AES
+// for AES
 using CryptoPP::AES;
 using CryptoPP::AutoSeededRandomPool;
+using CryptoPP::byte;
 using CryptoPP::CTR_Mode;
 using CryptoPP::Exception;
 using CryptoPP::FileSink;
@@ -34,6 +34,10 @@ using CryptoPP::StreamTransformationFilter;
 using CryptoPP::StringSink;
 using CryptoPP::StringSource;
 using CryptoPP::word64;
+
+using CryptoPP::ECB_Mode;
+using CryptoPP::ArraySink;
+using CryptoPP::ArraySource;
 
 // defining the parameters
 // #define q 2000
@@ -97,6 +101,72 @@ AESKeyAndIv generateAESKey()
     return aesData;
 }
 
+// genarate A matrix with seed
+union un
+{
+    byte buff[16];
+    // std::bitset<128> bitset_buff;
+    int int_buf[4];
+    int16_t short_buff[8];
+};
+union un1
+{
+    byte buff[32];
+    // std::bitset<128> bitset_buff;
+    int int_buf[8];
+    int16_t short_buff[16];
+};
+
+void printSeed(union un key)
+{
+    HexEncoder encoder(new FileSink(cout));
+    cout << "Key : " << endl;
+    encoder.Put(key.buff, sizeof(key.buff));
+    encoder.MessageEnd();
+    cout << endl;
+}
+
+void gen_A(union un key, dtype** A)
+{
+    union un plain;
+    plain.short_buff[0] = 0;
+    plain.short_buff[1] = 0;
+    plain.short_buff[2] = 0;
+    plain.short_buff[3] = 0;
+    plain.short_buff[4] = 0;
+    plain.short_buff[5] = 0;
+    plain.short_buff[6] = 0;
+    plain.short_buff[7] = 0;
+    union un1 cipher;
+    ECB_Mode<AES>::Encryption encrypt;
+    encrypt.SetKey(key.buff, sizeof(key.buff));
+    // printSeed(key);
+    for (int16_t i = 0; i < n; i++)
+    {
+        for (int16_t j = 0; j < m; j = j + 4)
+        {
+            plain.short_buff[0] = i;
+            plain.short_buff[1] = j;
+            ArraySink cs(&cipher.buff[0], sizeof(cipher.buff));
+            ArraySource(plain.buff, sizeof(plain.buff), true, new StreamTransformationFilter(encrypt, new Redirector(cs)));
+            // encoder.Put(cipher.buff,sizeof(cipher));
+            // encoder.MessageEnd();
+            for (size_t k = 0; k < 4; k++)
+            {
+                // cout << cipher.int_buf[k] << " ";
+
+                if (j + k < m)
+                {
+                    // mod function needs to be implemented
+                    A[i][j+k] = mod(cipher.int_buf[k], q);
+                }
+            }
+            // cout << endl;
+        }
+    }
+}
+// end genarating A matrix with seed
+
 // convert byte array to bin
 short *AESDataToBinConvert(AESKeyAndIv data)
 {
@@ -155,7 +225,7 @@ AESKeyAndIv binToAESData(short bitstream[(AESKeyLength + AESIvLength)])
         }
     }
 
-    //resetting for iv
+    // resetting for iv
     total = 0;
     bytePosition = 0;
 
@@ -175,7 +245,7 @@ AESKeyAndIv binToAESData(short bitstream[(AESKeyLength + AESIvLength)])
     return data;
 }
 
-//AES Helper funciton
+// AES Helper funciton
 inline bool EndOfFile(const FileSource &file)
 {
     std::istream *stream = const_cast<FileSource &>(file).GetStream();
@@ -314,14 +384,18 @@ void genarateRegevKeys(privateKey *private_key, publicKey *public_key)
     // Genarating the matrix A
     // initializing matrix A
     public_key->A = initMatrix(public_key->A, n, m);
-    for (int i = 0; i < n; i++)
-    {
-        for (int j = 0; j < m; j++)
-        {
-            // filling the A matrix from the numbers taken from the distribution
-            public_key->A[i][j] = genUniformRandomlong(0, q - 1);
-        }
-    }
+    // for (int i = 0; i < n; i++)
+    // {
+    //     for (int j = 0; j < m; j++)
+    //     {
+    //         // filling the A matrix from the numbers taken from the distribution
+    //         public_key->A[i][j] = genUniformRandomlong(0, q - 1);
+    //     }
+    // }
+    AutoSeededRandomPool prng;
+    union un key;
+    prng.GenerateBlock(key.buff,sizeof(key.buff));
+    gen_A(key,public_key->A);
 
     // avarage of A's coiff should be close to q/2
     // cout << "[DEBUG] Min of A : " << public_key->A.minCoeff() << " Max of A : " << public_key->A.maxCoeff() << endl;
