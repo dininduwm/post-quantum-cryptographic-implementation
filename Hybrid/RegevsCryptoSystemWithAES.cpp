@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <random>
 #include <ctime>
 #include "sodium.h"
@@ -35,9 +36,9 @@ using CryptoPP::StringSink;
 using CryptoPP::StringSource;
 using CryptoPP::word64;
 
-using CryptoPP::ECB_Mode;
 using CryptoPP::ArraySink;
 using CryptoPP::ArraySource;
+using CryptoPP::ECB_Mode;
 
 // defining the parameters
 // #define q 2000
@@ -126,7 +127,7 @@ void printSeed(union un key)
     cout << endl;
 }
 
-void gen_A(union un key, dtype** A)
+void gen_A(union un key, dtype **A)
 {
     union un plain;
     plain.short_buff[0] = 0;
@@ -158,7 +159,7 @@ void gen_A(union un key, dtype** A)
                 if (j + k < m)
                 {
                     // mod function needs to be implemented
-                    A[i][j+k] = mod(cipher.int_buf[k], q);
+                    A[i][j + k] = mod(cipher.int_buf[k], q);
                 }
             }
             // cout << endl;
@@ -354,7 +355,7 @@ dtype genUniformRandomlong(dtype lowerBound, dtype upperBound)
 
 dtype half(dtype q)
 {
-    if (q & 1 == 1)
+    if ((q & 1) == 1)
     {
         return (q >> 1) + 1;
     }
@@ -376,6 +377,169 @@ dtype gaussian(double sigma)
     return (dtype)(val * q);
 }
 
+// dump matrix to a file
+// need to provide an opend ostream
+void dumpMatrix(ofstream *fout, dtype **A, int rows, int cols)
+{
+    for (int row = 0; row < rows; row++)
+    {
+        (*fout).write((char *)&A[row][0], sizeof(dtype)*cols);
+    }
+}
+// dump array to a file
+// need to provide an opend ostream
+void dumpKey(ofstream *fout, union un key)
+{
+    (*fout).write((char *)&key, sizeof(key));
+}
+
+// load matrix from a file
+// need to provide an opend istream
+dtype ** loadMatrix(ifstream *fin, dtype **A, int rows, int cols)
+{
+    for (int row = 0; row < rows; row++)
+    {
+        (*fin).read((char *)&A[row][0], sizeof(dtype)*cols);
+    }
+    return A;
+}
+// load array from a file
+// need to provide an opend istream
+union un loadKey(ifstream *fin, union un key)
+{
+    (*fin).read((char *)&key, sizeof(key));
+    return key;
+}
+
+// load public key
+void loadPublicKey(publicKey *public_key)
+{
+    // initializing bT
+    public_key->bT = initMatrix(public_key->bT, 1, m);
+    // input file stream
+    ifstream fin;
+    fin.open("public_key.bin", ios::binary | ios::in);
+    loadMatrix(&fin, public_key->bT, 1, m);
+    // cout << "hello" << public_key->bT[0][0] << endl;
+
+    // key for the A matrix
+    union un key;
+    key = loadKey(&fin, key);
+
+    fin.close();
+
+    // initializing A matrix
+    public_key->A = initMatrix(public_key->A, n, m);
+    // genarating the matrix
+    gen_A(key, public_key->A);
+}
+
+// load private key
+void loadPrivateKey(privateKey *private_key)
+{
+    // initializing bT
+    private_key->sT = initMatrix(private_key->sT, 1, n);
+    // input file stream
+    ifstream fin;
+    fin.open("private_key.bin", ios::binary | ios::in);
+    loadMatrix(&fin, private_key->sT, 1, n);
+
+    // key for the A matrix
+    union un key;
+    key = loadKey(&fin, key);
+
+    fin.close();
+
+    // initializing A matrix
+    private_key->A = initMatrix(private_key->A, n, m);
+    // genarating the matrix
+    gen_A(key, private_key->A);
+}
+
+// dump regev ciper text
+void dumpRegevCipherText(struct cipherText ct)
+{
+    // dumping the cipher text
+    ofstream fout;
+    fout.open("cipher_2.bin", ios::binary | ios::out);
+    dumpMatrix(&fout, ct.u, n, numberBits);
+    dumpMatrix(&fout, ct.u_, 1, numberBits);
+    fout.close();
+}
+
+// dump regev ciper text
+struct cipherText loadRegevCipherText()
+{
+    struct cipherText ct;
+    ct.u = initMatrix(ct.u, n, numberBits);
+    ct.u_ = initMatrix(ct.u_, 1, numberBits);
+    // loading the cipher text
+    ifstream fin;
+    fin.open("cipher_2.bin", ios::binary | ios::in);
+    loadMatrix(&fin, ct.u, n, numberBits);
+    loadMatrix(&fin, ct.u_, 1, numberBits);
+    fin.close();
+
+    return ct;
+}
+
+// function to genarate keys
+void dumpRegevKeys()
+{
+    struct privateKey private_key;
+    struct publicKey public_key;
+
+    public_key.A = initMatrix(public_key.A, n, m);
+    // random seed for genarating A matrix
+    AutoSeededRandomPool prng;
+    union un key;
+    // genarating the random seed
+    prng.GenerateBlock(key.buff, sizeof(key.buff));
+    // genarating the matrix
+    gen_A(key, public_key.A);
+
+    private_key.sT = initMatrix(private_key.sT, 1, n);
+    for (int i = 0; i < n; i++)
+    {
+        private_key.sT[0][i] = genUniformRandomlong(0, q - 1);
+    }
+
+    // dumping the private key
+    ofstream fout;
+    fout.open("private_key.bin", ios::binary | ios::out);
+    dumpMatrix(&fout, private_key.sT, 1, n);
+    dumpKey(&fout, key);
+    fout.close();
+
+    double alpha = sqrt(double(n)) / q;
+    double sigma = alpha / sqrt(2 * PI);
+
+    // Matrix<dtype, 1, m> eT;
+    dtype **eT;
+    eT = initMatrix(eT, 1, m);
+
+    // dtype total = 0;
+    for (int i = 0; i < m; i++)
+    {
+        // e should be small and should choosen between -7,7 (discreate gausisan distribution [ignore for now])
+        eT[0][i] = gaussian(sigma);
+        // total += eT(col);
+    }
+    // cout << "[DEBUG] min e: " << eT.minCoeff() << " max e: " << eT.maxCoeff() << " total :" << total << endl;
+
+    // calculating bT
+    // public_key->bT = (private_key->sT) * (public_key->A) + eT;
+    public_key.bT = initMatrix(public_key.bT, 1, m);
+    matMulAdd(private_key.sT, public_key.A, eT, public_key.bT, 1, n, m, q);
+    // sharig A among public and private key
+    // private_key->A = public_key->A;
+
+    fout.open("public_key.bin", ios::binary | ios::out);
+    dumpMatrix(&fout, public_key.bT, 1, m);
+    dumpKey(&fout, key);
+    fout.close();
+}
+
 // function to genarate keys
 void genarateRegevKeys(privateKey *private_key, publicKey *public_key)
 {
@@ -394,8 +558,8 @@ void genarateRegevKeys(privateKey *private_key, publicKey *public_key)
     // }
     AutoSeededRandomPool prng;
     union un key;
-    prng.GenerateBlock(key.buff,sizeof(key.buff));
-    gen_A(key,public_key->A);
+    prng.GenerateBlock(key.buff, sizeof(key.buff));
+    gen_A(key, public_key->A);
 
     // avarage of A's coiff should be close to q/2
     // cout << "[DEBUG] Min of A : " << public_key->A.minCoeff() << " Max of A : " << public_key->A.maxCoeff() << endl;
@@ -483,7 +647,7 @@ cipherText encryptRegev(publicKey public_key, short *message_bit)
     // bTx = public_key.bT * X;
     matMul(public_key.bT, x, bTx, 1, m, numberBits, q);
 
-    // // taking the modulus of bTx
+    // // // taking the modulus of bTx
     // // for (dtype i = 0; i < numberBits; i++)
     // // {
     // //     bTx(0, i) = mod(bTx(0, i), q);
@@ -569,77 +733,60 @@ int main(int argc, char const *argv[])
     q = tmp1 - 19;
     cout << "q = " << q << endl;
 
-    // Generating Regev keys
-    auto start = high_resolution_clock::now();
-    struct privateKey private_key;
-    struct publicKey public_key;
-    genarateRegevKeys(&private_key, &public_key);
-    // Generating Regev keys END
-    auto stop = high_resolution_clock::now();
-    auto duration = duration_cast<microseconds>(stop - start);
-    double time = duration.count();
-    time = time / 1000000;
-    cout << "Key Genaration time Regev = " << time << " s" << endl;
+    // Menu system
+    int option;
+    cout << "Hybrid Encryption System. Select the option you want" << endl;
+    cout << "1. Generate Key pair" << endl;
+    cout << "2. Encrypt" << endl;
+    cout << "3. Decrypt" << endl;
+    cout << "Enter your option: ";
 
-    // Encryption process ==============================================================
+    // taking user input
+    cin >> option;
 
-    start = high_resolution_clock::now();
-    // Genarating AES Key and Iv
-    AESKeyAndIv aesData = generateAESKey();
-    // Genarating AES Key and Iv END
-    stop = high_resolution_clock::now();
-    duration = duration_cast<microseconds>(stop - start);
-    time = duration.count();
-    time = time / 1000000;
-    cout << "Key Genaration time AES = " << time << " s" << endl;
-
-    // conver to bits
-    short *aesDataBin = AESDataToBinConvert(aesData);
-
-    start = high_resolution_clock::now();
-    // encrypting AES Key Data using Regev
-    cipherText cipher_text = encryptRegev(public_key, aesDataBin);
-    // encrypting AES Key Data using Regev END
-    stop = high_resolution_clock::now();
-    duration = duration_cast<microseconds>(stop - start);
-    time = duration.count();
-    time = time / 1000000;
-    cout << "Regev Encryption time (Encrypting AES Key) = " << time << " s" << endl;
-
-    start = high_resolution_clock::now();
-    // AES Encryption Process
-    encryptAES(aesData);
-    // AES Encryption Process END
-    stop = high_resolution_clock::now();
-    duration = duration_cast<microseconds>(stop - start);
-    time = duration.count();
-    time = time / 1000000;
-    cout << "AES Encryption time (Encrypting File) = " << time << " s" << endl;
-
-    // Decryption process ==============================================================
-
-    start = high_resolution_clock::now();
-    // decrypting AES Key data using Regev
-    short *aesDataBinRecovered = decryptRegev(private_key, cipher_text);
-    // decrypting AES Key data using Regev END
-    stop = high_resolution_clock::now();
-    duration = duration_cast<microseconds>(stop - start);
-    time = duration.count();
-    time = time / 1000000;
-    cout << "Regev Decryption time (Decrypting AES Key) = " << time << " s" << endl;
-
-    // Converting binary data back to AES key and Iv
-    AESKeyAndIv convertedData = binToAESData(aesDataBin);
-
-    start = high_resolution_clock::now();
-    // AES Decryption
-    decryptAES(convertedData);
-    // AES Decryption END
-    stop = high_resolution_clock::now();
-    duration = duration_cast<microseconds>(stop - start);
-    time = duration.count();
-    time = time / 1000000;
-    cout << "AES Decryption time (Decrypting File) = " << time << " s" << endl;
+    if (option == 1)
+    {
+        // Generating Regev keys
+        dumpRegevKeys();
+    }
+    else if (option == 2)
+    {
+        // dumpRegevKeys();
+        // Encryptions process ==============================================================
+        // loading the public key
+        struct publicKey public_key;
+        loadPublicKey(&public_key);
+        // cout << public_key.bT[0][0];
+        // Genarating AES Key and Iv
+        AESKeyAndIv aesData = generateAESKey();
+        // conver to bits
+        short *aesDataBin = AESDataToBinConvert(aesData);
+        // encrypting AES Key Data using Regev
+        cipherText cipher_text = encryptRegev(public_key, aesDataBin);
+        // dump the ciper text
+        dumpRegevCipherText(cipher_text);
+        // AES Encryption Process
+        encryptAES(aesData);
+    }
+    else if (option == 3)
+    {
+        // Decryption process ==============================================================
+        // loading the private key
+        struct privateKey private_key;
+        loadPrivateKey(&private_key);
+        // loading the cipher text from the file
+        cipherText cipher_text_2 = loadRegevCipherText();
+        // decrypting AES Key data using Regev
+        short *aesDataBinRecovered = decryptRegev(private_key, cipher_text_2);
+        // Converting binary data back to AES key and Iv
+        AESKeyAndIv convertedData = binToAESData(aesDataBinRecovered);
+        // AES Decryption
+        decryptAES(convertedData);
+    }
+    else
+    {
+        cout << "invalid option" << endl;
+    }
 
     return 0;
 }
