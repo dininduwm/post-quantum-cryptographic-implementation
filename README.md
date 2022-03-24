@@ -16,7 +16,7 @@ Latis based post quantum cryptographic algorithm implementation
 ## compilation
 
 g++ input.cpp -o output -lsodium -DEIGEN_STACK_ALLOCATION_LIMIT=0
-g++ input.cpp -pthread -lsodium -std=c++11 ../Matrix/Matrix.cpp
+g++ RegevsCryptoSystemWithAES.cpp -pthread -lsodium -std=c++11 ../Matrix/Matrix.cpp ../cryptopp/libcryptopp.a
 #### if including helper functions
 g++ input.cpp -o output ../Helper/Helper.cpp
 ## For Regev Hybrid Crypto system compilation
