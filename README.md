@@ -24,5 +24,9 @@ g++ -DNDEBUG=1 -g3 -O2 -Wextra AESRegevsCryptoSystemMultibits.cpp -o hybrid -lcr
 
 ### -DEIGEN_STACK_ALLOCATION_LIMIT=0 flag required to set EIGEN_STACK_ALLOCATION_LIMIT for Eigen matrixes
 
+##For openssl implementation
+
+g++ -O2 ssl.cpp -lm -o output -lcrypto -lsodium -DEIGEN_STACK_ALLOCATION_LIMIT=0
+
 ## execution
 ./output
