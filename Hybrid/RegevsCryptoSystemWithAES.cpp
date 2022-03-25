@@ -383,7 +383,7 @@ void dumpMatrix(ofstream *fout, dtype **A, int rows, int cols)
 {
     for (int row = 0; row < rows; row++)
     {
-        (*fout).write((char *)&A[row][0], sizeof(dtype)*cols);
+        (*fout).write((char *)&A[row][0], sizeof(dtype) * cols);
     }
 }
 // dump array to a file
@@ -395,11 +395,11 @@ void dumpKey(ofstream *fout, union un key)
 
 // load matrix from a file
 // need to provide an opend istream
-dtype ** loadMatrix(ifstream *fin, dtype **A, int rows, int cols)
+dtype **loadMatrix(ifstream *fin, dtype **A, int rows, int cols)
 {
     for (int row = 0; row < rows; row++)
     {
-        (*fin).read((char *)&A[row][0], sizeof(dtype)*cols);
+        (*fin).read((char *)&A[row][0], sizeof(dtype) * cols);
     }
     return A;
 }
@@ -727,6 +727,7 @@ void printBits(dtype bit_array[numberBits])
 
 int main(int argc, char const *argv[])
 {
+    double time;
     // calculating q
     unsigned long tmp1 = 1;
     tmp1 = tmp1 << 31;
@@ -746,12 +747,19 @@ int main(int argc, char const *argv[])
 
     if (option == 1)
     {
+        auto start = high_resolution_clock::now();
         // Generating Regev keys
         dumpRegevKeys();
+
+        auto stop = high_resolution_clock::now();
+        auto duration = duration_cast<microseconds>(stop - start);
+        time = duration.count();
+        time = time / 1000000;
+        cout << "Key Genaration time = " << time << " s" << endl;
     }
     else if (option == 2)
     {
-        // dumpRegevKeys();
+        auto start = high_resolution_clock::now();
         // Encryptions process ==============================================================
         // loading the public key
         struct publicKey public_key;
@@ -767,9 +775,16 @@ int main(int argc, char const *argv[])
         dumpRegevCipherText(cipher_text);
         // AES Encryption Process
         encryptAES(aesData);
+
+        auto stop = high_resolution_clock::now();
+        auto duration = duration_cast<microseconds>(stop - start);
+        time = duration.count();
+        time = time / 1000000;
+        cout << "Encryption time = " << time << " s" << endl;
     }
     else if (option == 3)
     {
+        auto start = high_resolution_clock::now();
         // Decryption process ==============================================================
         // loading the private key
         struct privateKey private_key;
@@ -782,6 +797,12 @@ int main(int argc, char const *argv[])
         AESKeyAndIv convertedData = binToAESData(aesDataBinRecovered);
         // AES Decryption
         decryptAES(convertedData);
+
+        auto stop = high_resolution_clock::now();
+        auto duration = duration_cast<microseconds>(stop - start);
+        time = duration.count();
+        time = time / 1000000;
+        cout << "Decryption time = " << time << " s" << endl;
     }
     else
     {
