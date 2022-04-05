@@ -10,7 +10,7 @@ unsigned char* readFile(const char * filename)
 {  
 	unsigned char* data = new unsigned char[2000000];
 	
-	FILE *fp = fopen("1.txt","rb");
+	FILE *fp = fopen(filename,"rb");
 	int c;
 
 	if(fp == NULL)
@@ -20,7 +20,7 @@ unsigned char* readFile(const char * filename)
 	} 
 		
 
-	for(data_size=0; data_size<2000000 && (c=fgetc(fp))!=EOF; data_size++) 
+	for(data_size=0; data_size < 2000000 && (c=fgetc(fp))!=EOF; data_size++) 
 	{
 		data[data_size] = c;
 	}
@@ -37,7 +37,11 @@ unsigned char* readFile(const char * filename)
 	unsigned char* data2 = readFile("11.txt");
 	string hash2 = sha256(data2);
 
+	unsigned char* data3 = readFile("1.txt");
+	string hash3 = sha256(data3);
+
 	cout<< compareHash(hash1, hash2) << endl;
+	cout<< compareHash(hash1, hash3) << endl;
 	cout<< hash1 << endl;
 	cout<< hash2 << endl;
 
