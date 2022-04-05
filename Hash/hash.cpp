@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 using namespace std;
+#include "hash.h"
 
 #include <openssl/sha.h>
 
@@ -23,3 +24,10 @@ string sha256(unsigned char array[])
     return ss.str();
 }
 
+bool compareHash(string s1, string s2)
+{
+     if (s1 == s2)
+        return true;
+
+     return false;
+}
