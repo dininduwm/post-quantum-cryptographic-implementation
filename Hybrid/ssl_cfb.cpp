@@ -393,7 +393,7 @@ unsigned char* encryptAES(AES_KEY enc_key, unsigned char key[], unsigned char iv
 	for(int i=data_size; i<out_size; i++) 
 		data[i] = (out_size-data_size);
     AES_set_encrypt_key(key, 128, &enc_key); // 128bit = 16byte
-    AES_cfb_encrypt(data, encrypted,out_size, &enc_key, iv, AES_ENCRYPT);
+    AES_cfb128_encrypt(data, encrypted,out_size, &enc_key, iv, AES_ENCRYPT);
 /*
       cout << "iv ### aftere enc" << endl;
   printBlock(iv, AES_BLOCK_SIZE);
@@ -418,7 +418,7 @@ unsigned char* decryptAES(AES_KEY enc_key, unsigned char encrypted[], unsigned c
 	unsigned char* decrypted = new unsigned char[data_size];
   AES_set_decrypt_key(key, 128, &enc_key);
   //memset(iv, 0x01, AES_BLOCK_SIZE);
-  AES_cfb_encrypt(encrypted, decrypted, data_size, &enc_key, iv, AES_DECRYPT);
+  AES_cfb128_encrypt(encrypted, decrypted, data_size, &enc_key, iv, AES_DECRYPT);
   
   unsigned char tail = decrypted[data_size-1];
 
