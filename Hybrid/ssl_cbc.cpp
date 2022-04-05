@@ -9,7 +9,7 @@ using std::string;
 using namespace std;
 #include<stdio.h>
 #include <openssl/rand.h>
-
+#include "Hash/hash.h"
 #include <openssl/conf.h>
 #include <openssl/aes.h>
 #include <openssl/err.h>
@@ -330,7 +330,7 @@ unsigned char* readFile(const char * filename)
 {  
 	unsigned char* data = new unsigned char[2000000];
 	
-	FILE *fp = fopen("1.txt","rb");
+	FILE *fp = fopen(filename ,"rb");
 	int c;
 
 	if(fp == NULL)
@@ -345,7 +345,7 @@ unsigned char* readFile(const char * filename)
 		data[data_size] = c;
 	}
 	fclose(fp);
-//cout << "read file: "<< data_size << endl;
+
 	return data;
 }
 
@@ -478,16 +478,10 @@ int main(int argc, char* argv[])
    	AES.AESCipherText = encryptAES(aesKey, key, iv, argv[0]);
 
 
-		//cout<<"AES payload ok"<<endl;
-
 		unsigned char *recovered_AESKey = RegevDecrypt(private_key, AES.AESKey);
 		unsigned char *recovered_AESIv = RegevDecrypt(private_key, AES.AESIv);
-		//cout<<"AES recovery ok"<<endl;
-		//string recovered = AESDecrypt(recovered_AESKey, recovered_AESIv, AES.AESCipherText);
 		unsigned char* decrypted = decryptAES(aesKey2, AES.AESCipherText, recovered_AESKey, recovered_AESIv);
-		//cout<<"AES decrypted ok"<<endl;
-		//delete[] binKey; delete[] binIV;
-		//cout<<i<<": "<<endl;
+
 		
 		if (checkAnswer(data, decrypted))
         {
@@ -501,27 +495,5 @@ int main(int argc, char* argv[])
 
    cout << "Encryption and Decryption works " << (success / rounds) * 100 << "% of time." << endl;
 
-/*
-  cout << "key ######################################" << endl;
-  printBlock(key, AES_BLOCK_SIZE);
-  cout << " " << endl;
-
-
-  cout << "iv ######################################" << endl;
-  printBlock(iv, AES_BLOCK_SIZE);
-  cout << " " << endl;
-
-
-
-	
-
-	for (int i = 0; i < data_size; ++i)
-	{
-		if(data[i] != decrypted[i])
-		{
-			cout << "data["<<i<<"] : "<< (int)data[i]<<"	#		decrypted["<<i<<"] : "<< (int)decrypted[i] << endl;
-		}
-	}
-	*/
      return 0;
 }

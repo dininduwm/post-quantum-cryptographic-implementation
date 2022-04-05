@@ -9,7 +9,7 @@ using std::string;
 using namespace std;
 #include<stdio.h>
 #include <openssl/rand.h>
-
+#include "Hash/hash.h"
 #include <openssl/conf.h>
 #include <openssl/aes.h>
 #include <openssl/err.h>
