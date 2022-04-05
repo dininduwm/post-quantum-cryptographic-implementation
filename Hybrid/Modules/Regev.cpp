@@ -37,6 +37,9 @@ short * binConvert(unsigned char input[AESKeyLength])
    return bitstream;
 }
 
+
+
+
 unsigned char* binToByteConvert(short bitstream[AESKeyLength]) 
 {
 

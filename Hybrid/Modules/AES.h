@@ -17,4 +17,5 @@ struct AESPayload
 };
 
 unsigned char* encryptAES(AES_KEY enc_key, unsigned char key[], unsigned char iv[], const char * filename);
-unsigned char* decryptAES(AES_KEY enc_key, unsigned char encrypted[], unsigned char key[], unsigned char iv[]);
+unsigned char* decryptAES(AES_KEY enc_key, unsigned char key[], unsigned char iv[], const char * OutputFilename);
+bool checkAnswer(unsigned char message[], unsigned char recovered[]);

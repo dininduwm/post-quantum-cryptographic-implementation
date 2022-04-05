@@ -8,7 +8,13 @@
 using std::string;
 using namespace std;
 
+struct InputFile
+{
+	unsigned char* data;
+	unsigned long data_size;
+};
 
 
-unsigned char* readFile(const char * filename);
+
+InputFile readFile(const char * filename);
 int writeFile(unsigned char out[], unsigned long out_size, const char * filename);

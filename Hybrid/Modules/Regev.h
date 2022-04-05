@@ -96,6 +96,7 @@ struct cipherTextRegev
 long gaussian(double sigma);
 long mod(long value, long mod_value);
 unsigned char* binToByteConvert(short bitstream[AESKeyLength]);
+short * binConvert(unsigned char input[AESKeyLength]);
 long genUniformRandomLong(int lowerBound, int upperBound);
 long genUniformRandomLong(int lowerBound, int upperBound);
 void genarateRegevKeys(privateKeyRegev *private_key, publicKeyRegev *public_key);
