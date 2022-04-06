@@ -43,6 +43,8 @@ unsigned char* decryptAES(AES_KEY enc_key, unsigned char key[], unsigned char iv
   	
   	for(int i=1;i<tail && valid;i++)
 		valid = (decrypted[data_size-1-i] == tail);
+
+		data_size -= tail;
 	 
 	 writeFile(decrypted, data_size, OutputFilename);
 

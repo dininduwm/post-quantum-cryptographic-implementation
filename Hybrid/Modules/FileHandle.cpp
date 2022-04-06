@@ -46,7 +46,7 @@ int writeFile(unsigned char out[], unsigned long out_size, const char * filename
 	int i = 0;
 	while(i < out_size)
 	{
-		cout << (char)out[i];
+		//cout << (char)out[i];
 		fputc(out[i], fp);
 		i++;
 	}
