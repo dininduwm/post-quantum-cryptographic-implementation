@@ -35,7 +35,7 @@ int main(int argc, char const *argv[])
 	cout << 2 << endl;
 
 	AES.AESCipherText = encryptAES(aesKey, key, iv, argv[1]);
-/*
+
 
 	unsigned char* decrypted = decryptAES(aesKey2, recovered_AESKey, recovered_AESIv, "out.txt");
 	
@@ -48,7 +48,7 @@ int main(int argc, char const *argv[])
     delete[] recovered_AESKey; delete[] recovered_AESIv; delete[] binKey; delete[] binIV; 
 
     cout << "Encryption and Decryption works " << (success / rounds) * 100 << "% of time." << endl;
-*/
+
 		cout << 1 << endl;
 	return 0;
 }

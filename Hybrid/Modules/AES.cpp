@@ -3,7 +3,7 @@
 
 unsigned char* encryptAES(AES_KEY enc_key, unsigned char key[], unsigned char iv[], const char * filename)
 {	
-	
+	cout << "before file read "<< filename << endl;
 
 	struct InputFile rawData = readFile(filename);
 	//unsigned char* decrypted

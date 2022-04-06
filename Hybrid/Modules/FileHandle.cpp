@@ -5,6 +5,7 @@ InputFile readFile(const char * filename)
 
 
 	struct InputFile rawData;
+	rawData.data = new unsigned char[2000000];
 	unsigned long data_size;
 	//unsigned char* data = new unsigned char[2000000];
 	
