@@ -18,15 +18,15 @@ InputFile readFile(const char * filename)
 		exit (EXIT_FAILURE);	
 	} 
 		
-cout << "read file size: "<< data_size << endl;
+//cout << "read file size: "<< data_size << endl;
 	for(data_size=0; data_size<2000000 && (c=fgetc(fp))!=EOF; data_size++) 
 	{	
-		cout << (char)c << endl;
+		//cout << (char)c << endl;
 		rawData.data[data_size] = c;
 	}
 	fclose(fp);
 
-	cout << "opened file stored "<< filename << endl;
+//	cout << "opened file stored "<< filename << endl;
 //cout << "read file: "<< data_size << endl;
 	rawData.data_size = data_size;
 	return rawData;
@@ -44,8 +44,9 @@ int writeFile(unsigned char out[], unsigned long out_size, const char * filename
 		
 //cout << "write file: "<< out_size << endl;
 	int i = 0;
-	while(out[i] != '\0')
+	while(i < out_size)
 	{
+		cout << (char)out[i];
 		fputc(out[i], fp);
 		i++;
 	}

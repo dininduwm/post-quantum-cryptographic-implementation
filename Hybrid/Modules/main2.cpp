@@ -13,7 +13,7 @@ int main(int argc, char const *argv[])
    	unsigned char receiverIV[16];
  	unsigned char receiverKey[16];
 
- 	cout << 1 << endl;
+
 
    	RAND_bytes(iv, 16);
   	RAND_bytes(key, 16);
@@ -32,7 +32,7 @@ int main(int argc, char const *argv[])
 	unsigned char *recovered_AESKey = RegevDecrypt(private_key, AES.AESKey);
 	unsigned char *recovered_AESIv = RegevDecrypt(private_key, AES.AESIv);
 
-	cout << 2 << endl;
+	
 
 	AES.AESCipherText = encryptAES(aesKey, key, iv, argv[1]);
 
@@ -49,6 +49,5 @@ int main(int argc, char const *argv[])
 
     cout << "Encryption and Decryption works " << (success / rounds) * 100 << "% of time." << endl;
 
-		cout << 1 << endl;
 	return 0;
 }

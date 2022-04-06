@@ -3,32 +3,26 @@
 
 unsigned char* encryptAES(AES_KEY enc_key, unsigned char key[], unsigned char iv[], const char * filename)
 {	
-	cout << "before file read "<< filename << endl;
+	
 
 	struct InputFile rawData = readFile(filename);
 	//unsigned char* decrypted
-	 
-	cout << "file read "<< filename << endl;
+
 
 	unsigned long data_size = rawData.data_size;
 	unsigned long out_size = ((data_size/AES_BLOCK_SIZE) + 1) * AES_BLOCK_SIZE;
 	unsigned char* encrypted = new unsigned char[out_size];
 
-	cout << "arrays ready" << endl;
-
 	for(int i=data_size; i<out_size; i++) 
 		rawData.data[i] = (out_size-data_size);
-    AES_set_encrypt_key(key, 128, &enc_key); // 128bit = 16byte
-    AES_cbc_encrypt(rawData.data, encrypted, out_size, &enc_key, iv, AES_ENCRYPT);
 
-    cout << "file encrypted" << endl;
+  AES_set_encrypt_key(key, 128, &enc_key); // 128bit = 16byte
+  AES_cbc_encrypt(rawData.data, encrypted, out_size, &enc_key, iv, AES_ENCRYPT);
 
-    writeFile(encrypted, out_size, "enc.aes");
+  writeFile(encrypted, out_size, "enc.aes");
 
-     cout << "file encrypted written" << endl;
-
-    rawData.data_size = data_size;
-    return rawData.data;
+  rawData.data_size = data_size;
+  return rawData.data;
 }
 
 
