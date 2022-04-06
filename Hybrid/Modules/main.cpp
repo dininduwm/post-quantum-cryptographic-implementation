@@ -1,26 +1,18 @@
 
-#include "Regev.h"
+#include "AES.h"
 
 
 int main(int argc, char const *argv[])
 {
-	struct privateKeyRegev private_key;
-	struct publicKeyRegev public_key;
-	genarateRegevKeys(&private_key, &public_key);
-	short message_bit[numberBits];
+	//struct InputFile input = readFile("1.txt");
 
-	for (long j = 0; j < numberBits; j++)
-		{
-			message_bit[j] = (short)1;
-		}
+	unsigned char key[16] = {0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5};
+    unsigned char iv[16]  = {0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5};
+    AES_KEY enc_key;
 
-	cipherTextRegev test = RegevEncrypt( public_key,  message_bit);	
-	unsigned char* ans = RegevDecrypt( private_key, test);
+    encryptAES( enc_key,  key,  iv, "1.txt");
 
-	for (long j = 0; j < numberBits; j++)
-		{
-			cout<<	(short)ans[j];
-		}
+	
 
 
 

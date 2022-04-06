@@ -77,7 +77,7 @@ long genUniformRandomLong(int lowerBound, int upperBound)
 // function to genarate keys
 void genarateRegevKeys(privateKeyRegev *private_key, publicKeyRegev *public_key)
 {
-	cout << "[LOG] Generating Matrix A" << endl;
+	// /cout << "[LOG] Generating Matrix A" << endl;
 
 	// Genarating the matrix A
 	long number = 0;
