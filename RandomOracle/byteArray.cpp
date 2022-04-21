@@ -65,7 +65,7 @@ void printBytes(byte *array, int byteSize)
 
 void initiateHash(std::string message, byte *output)
 {
-    // This will take string as the input and generate a hash function.
+    // This will take string as the input and generate a hash value.
     std::cout << message << std::endl;
     SHA256 hash;
     hash.Update((const byte *)message.data(), message.size());
@@ -77,6 +77,46 @@ void appendBytesToString(std::string &str, byte *array, size_t num_bytes)
 {
     // This will concatanate the sigma(random key) and a given message in string format
     str.append((char *)array, num_bytes);
+}
+
+void addEntries(long **matrix, int n, int m, byte *input, byte *output)
+{
+
+    /*
+    m=100,n=20
+    count = ceil(n*m/256)
+    output = hash(input)
+    // check we need more iterations
+    for i=0 -> count:
+        256 m=2,
+        output[] == 0:
+            [m][n]=0
+        else:
+            [m][n]=1
+        output = hash(output)
+
+    */
+}
+
+void generateValues(size_t count, byte *array)
+{
+    // generate binary values
+    int iterations = (count / 32);
+    if (count % 32 != 0)
+    {
+        iterations++;
+    }
+    std::cout << iterations << std::endl;
+}
+
+void printArray(int *array, int length)
+{
+
+    for (size_t i = 0; i < length; i++)
+    {
+        std::cout << array[i] << " ";
+    }
+    std::cout << std::endl;
 }
 
 int main(int argc, char const *argv[])
@@ -115,4 +155,6 @@ int main(int argc, char const *argv[])
     printBytes(hash_digest.buff, sizeof(hash_digest.buff));
     initiateHash(msg, hash_digest.buff);
     printBytes(hash_digest.buff, sizeof(hash_digest.buff));
+    printArray(hash_digest.int_buf, 8);
+    generateValues(10, hash_digest.buff);
 }
