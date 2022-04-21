@@ -12,6 +12,8 @@
 // #include <crypto++/osrng.h>
 // using namespace std;
 
+// compile g++ ___.cpp -lcrypto++
+
 union un
 {
     byte buff[16];
