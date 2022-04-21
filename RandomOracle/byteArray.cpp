@@ -1,0 +1,118 @@
+#include <iostream>
+#include <iomanip>
+#include <sstream>
+#include <string>
+#include <stdio.h>
+#include <string.h>
+#include <crypto++/hex.h>
+#include <crypto++/sha.h>
+#include <crypto++/files.h>
+// #include <crypto++/cryptlib.h>
+// #include <crypto++/filters.h>
+// #include <crypto++/osrng.h>
+// using namespace std;
+
+union un
+{
+    byte buff[16];
+    int int_buf[4];
+    int16_t short_buff[8];
+};
+union un1
+{
+    byte buff[32];
+    int int_buf[8];
+    int16_t short_buff[16];
+};
+using namespace CryptoPP;
+
+// void initiate(byte *currentHash)
+// {
+//     SHA256 hash;
+//     byte *output;
+//     hash.Update(currentHash, sizeof(currentHash));
+//     hash.Final(output);
+//     memcpy(currentHash, output, sizeof(output));
+//     // return currentHash;
+// }
+
+void generateHash(byte *message, int size, byte *output)
+{
+    /*
+    inputs:
+        message : a byte array for message to hash
+        size    : size of the message
+        output  : a byte array for message to output
+    */
+    SHA256 hash;
+    hash.Update(message, size);
+    hash.Final(output);
+}
+
+byte *populate(std::string message, int size, byte *initializer)
+{
+    return initializer;
+}
+
+void printBytes(byte *array, int byteSize)
+{
+    std::cout << "Size of array: " << sizeof(array) << std::endl;
+    HexEncoder encoder(new FileSink(std::cout));
+    encoder.Put(array, byteSize);
+    encoder.MessageEnd();
+    std::cout << std::endl;
+}
+
+void initiateHash(std::string message, byte *output)
+{
+    // This will take string as the input and generate a hash function.
+    std::cout << message << std::endl;
+    SHA256 hash;
+    hash.Update((const byte *)message.data(), message.size());
+    std::cout << hash.DigestSize() << std::endl;
+    hash.Final(output);
+}
+
+void appendBytesToString(std::string &str, byte *array, size_t num_bytes)
+{
+    // This will concatanate the sigma(random key) and a given message in string format
+    str.append((char *)array, num_bytes);
+}
+
+int main(int argc, char const *argv[])
+{
+    union un1 hash_digest;
+    HexEncoder encoder(new FileSink(std::cout));
+
+    std::string msg = "Yoda said, Do or do not. There is no try.";
+    std::string digest;
+
+    SHA256 hash;
+    hash.Update((const byte *)msg.data(), msg.size());
+    digest.resize(hash.DigestSize());
+    // hash.Final((byte *)&digest[0]);
+    hash.Final(hash_digest.buff);
+    std::cout << "Digest size " << hash.DigestSize() << std::endl;
+    std::cout << "Message: " << msg << std::endl;
+
+    std::cout << "Digest: ";
+    // StringSource(digest, true, new Redirector(encoder));
+    // std::cout << std::endl;
+    // // ArraySource(hash_digest.buff, true, new Redirector(encoder));
+    // // std::cout << std::endl;
+    // std::cout << sizeof(digest) << std::endl;
+    // std::cout << "Key : " << std::endl;
+    encoder.Put(hash_digest.buff, sizeof(hash_digest.buff));
+    encoder.MessageEnd();
+    std::cout << std::endl;
+    printBytes(hash_digest.buff, sizeof(hash_digest.buff));
+
+    // initiate(hash_digest.buff);
+
+    // populate(msg, 16, hash_digest.buff);
+    // union un1 returnHash;
+    generateHash(hash_digest.buff, sizeof(hash_digest.buff), hash_digest.buff);
+    printBytes(hash_digest.buff, sizeof(hash_digest.buff));
+    initiateHash(msg, hash_digest.buff);
+    printBytes(hash_digest.buff, sizeof(hash_digest.buff));
+}

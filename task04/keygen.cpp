@@ -8,3 +8,15 @@
     U(nxk) =AD  | public
     H hash function | public
 */
+
+#include <iostream>
+
+#define q 1023
+
+using namespace std;
+
+int main(int argc, char const *argv[])
+{
+
+    return 0;
+}
