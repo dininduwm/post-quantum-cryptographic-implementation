@@ -7,18 +7,9 @@
 #include <crypto++/hex.h>
 #include <crypto++/sha.h>
 #include <crypto++/files.h>
-// #include <crypto++/cryptlib.h>
-// #include <crypto++/filters.h>
-// #include <crypto++/osrng.h>
-// using namespace std;
-
-// compile g++ ___.cpp -lcrypto++
 
 using namespace std;
-
 using namespace CryptoPP;
-
-
 
 string stringHash(string message)
 {
@@ -35,7 +26,7 @@ bool* generateR(short size, string key)
 {
     if(size % 256 != 0)
     {
-        size = 1024;
+        size = (size - (size % 256)) > 256 ? : 256;
     }
     bool* r = new bool[size];
     short bitPosition;
@@ -61,5 +52,3 @@ bool* generateR(short size, string key)
 
     return r;
 }
-
-
