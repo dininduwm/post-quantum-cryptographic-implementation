@@ -38,7 +38,7 @@ using namespace CryptoPP;
 //     // return currentHash;
 // }
 
-void generateHash(byte *message, int size, byte *output)
+void byteHash(byte *message, int size, byte *output)
 {
     /*
     inputs:
@@ -65,7 +65,7 @@ void printBytes(byte *array, int byteSize)
     std::cout << std::endl;
 }
 
-void initiateHash(std::string message, byte *output)
+void stringHash(std::string message, byte *output)
 {
     // This will take string as the input and generate a hash value.
     std::cout << message << std::endl;
@@ -83,6 +83,8 @@ void appendBytesToString(std::string &str, byte *array, size_t num_bytes)
 
 void addEntries(long **matrix, int n, int m, byte *input, byte *output)
 {
+
+   
 
     /*
     m=100,n=20
@@ -123,6 +125,7 @@ void printArray(int *array, int length)
 
 int main(int argc, char const *argv[])
 {
+    /*
     union un1 hash_digest;
     HexEncoder encoder(new FileSink(std::cout));
 
@@ -153,10 +156,33 @@ int main(int argc, char const *argv[])
 
     // populate(msg, 16, hash_digest.buff);
     // union un1 returnHash;
-    generateHash(hash_digest.buff, sizeof(hash_digest.buff), hash_digest.buff);
+    byteHash(hash_digest.buff, sizeof(hash_digest.buff), hash_digest.buff);
     printBytes(hash_digest.buff, sizeof(hash_digest.buff));
-    initiateHash(msg, hash_digest.buff);
+    stringHash(msg, hash_digest.buff);
     printBytes(hash_digest.buff, sizeof(hash_digest.buff));
     printArray(hash_digest.int_buf, 8);
     generateValues(10, hash_digest.buff);
+    */
+
+        std::string msg = "Yoda said, Do or do not. There is no try.";
+        std::string digest;
+        HexEncoder encoder(new FileSink(std::cout));
+
+        /*
+        SHA256 hash;
+        hash.Update((const byte*)msg.data(), msg.size());
+        digest.resize(hash.DigestSize());
+        hash.Final((byte*)&digest[0]);
+
+        std::cout << "Message: " << msg << std::endl;
+
+        std::cout << "Digest: ";
+        StringSource(digest, true, new Redirector(encoder));
+        std::cout << std::endl;
+        std::cout << sizeof(digest) << std::endl;
+        */
+    
+
+
+
 }
