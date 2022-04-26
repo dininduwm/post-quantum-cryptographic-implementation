@@ -339,7 +339,7 @@ cipherText encryptDual(publicKey public_key, short message_bit[numberBits])
     // cout << "[LOG] Generating Matrix s" << endl;
     for (long col = 0; col < n; col++)
     {
-        sT[0][n] = genUniformRandomlong(0, q-1);
+        sT[0][col] = genUniformRandomlong(0, q-1);
     }
 
 
