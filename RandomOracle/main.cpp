@@ -3,9 +3,10 @@
 
 int main(int argc, char const *argv[])
 {
-        short size = 200;
+        short size = 1024;
         std::string msg = "Yoda said, Do or do not. There is no try.";
-        bool* r = generateR(size ,msg);
+        bool* r = generateBinArray(size ,msg);
+
 
         for (short bit = 0; bit < size; bit++)
         {
