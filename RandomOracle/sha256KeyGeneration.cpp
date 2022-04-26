@@ -8,6 +8,8 @@
 #include <crypto++/sha.h>
 #include <crypto++/files.h>
 
+#include <openssl/rand.h> // remove this
+
 using namespace std;
 using namespace CryptoPP;
 
@@ -22,7 +24,29 @@ string stringHash(string message)
     return digest;
 }
 
-bool* generateR(short size, string key)
+string byteHash(byte *message)
+{
+    /*
+    inputs:
+        message : a byte array for message to hash
+        size    : size of the message
+        output  : a byte array for message to output
+    */
+    SHA256 hash;
+    string digest;
+    hash.Update(message, sizeof(message));
+    digest.resize(hash.DigestSize());
+    hash.Final((byte*)&digest[0]);
+
+    return digest;
+}
+
+string appendString(string &str1, string &str2)
+{
+    return str1 + str2;
+}
+
+bool* generateBinArray(short size, string key)
 {
     if(size % 256 != 0)
     {
