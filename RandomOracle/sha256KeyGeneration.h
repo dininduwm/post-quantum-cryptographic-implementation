@@ -7,6 +7,7 @@
 #include <crypto++/hex.h>
 #include <crypto++/sha.h>
 #include <crypto++/files.h>
+#include <openssl/rand.h> // remove this
 // #include <crypto++/cryptlib.h>
 // #include <crypto++/filters.h>
 using namespace std;
@@ -16,7 +17,9 @@ using namespace CryptoPP;
 
 
 string stringHash(string message);
-bool* generateR(short size, string key);
+bool* generateBinArray(short size, string key);
+string byteHash(byte *message);
+string appendString(string &str1, string &str2);
 
 
 
