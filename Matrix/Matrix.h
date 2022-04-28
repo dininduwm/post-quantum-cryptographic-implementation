@@ -1,7 +1,6 @@
 #include <iostream>
 #include <thread>
 #include <boost/multiprecision/cpp_int.hpp>
-#include <boost/dynamic_bitset.hpp>
 
 typedef long long dtype;
 // for the multiplications and additions of elements not larger than long long
@@ -26,9 +25,6 @@ void matMulLarge(dtype **mat1, dtype **mat2, dtype **result, int r1, int c, int 
 // multiply matricies
 void matMulAddLarge(dtype **mat1, dtype **mat2, dtype **mat3, dtype **result, int r1, int c, int r2, dtype q);
 
-void matMulBinFraction(int **matrix, boost::dynamic_bitset<> &vec, int row_start, int row_stop, int cols, int *result);
-
-void matMulBin(int **matrix, boost::dynamic_bitset<> &vec, int rows, int cols, int *result);
 
 // mod oparation
 dtype mod(dtype value, dtype mod_value);

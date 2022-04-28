@@ -1,19 +1,17 @@
-#include "randomNumberGeneraton.h"
+#include "randomNumberGeneration.h"
 
 using namespace std;
-using namespace std::chrono;
 using CryptoPP::byte;
-using CryptoPP::SHA256;
+// using CryptoPP::SHA256;
 using std::string;
 
 // initial random arry size
 #define initialRandomByteArraySize 10
-dtype q = 1000;
 
 // byte array to hols the hash values
-byte *sigma;
-// hash value
-byte *hashBytes = new byte[32];
+// byte *sigma;
+// // hash value
+// byte *hashBytes = new byte[32];
 
 // do the hashing to a byte array
 void byteHash(byte *message, int size, byte *output)
@@ -63,6 +61,34 @@ byte *initHash(byte *initalByteArray, byte *hashBytes, string message)
     return hashBytes;
 }
 
+// fill with Gaussian vlues
+void fillWithGaussianValues(double sigma, dtype q, dtype **mat, short row, short col, byte *hashBytes)
+{
+    // recalculating the hash
+    byteHash(hashBytes, sizeof(hashBytes), hashBytes);
+    // genarating the seed value
+    uint32_t randomSeed = hashBytes[0];
+    randomSeed = (randomSeed << 8) | hashBytes[1];
+    randomSeed = (randomSeed << 8) | hashBytes[2];
+    randomSeed = (randomSeed << 8) | hashBytes[3];
+
+    mt19937 gen(randomSeed);
+    normal_distribution<double> gauss_dis(0, sigma);
+    // filling tge matrix
+    for (int rowIndex = 0; rowIndex < row; rowIndex++)
+    {
+        for (int colIndex = 0; colIndex < col; colIndex++)
+        {
+            double val = gauss_dis(gen);
+            if (val > 0.5)
+                val = val - 1.0;
+            else if (val < -0.5)
+                val = val + 1;
+            mat[rowIndex][colIndex] = (dtype)(val * q);
+        }
+    }
+}
+
 // fill with random binary numbers
 void fillWithRandomBinary(dtype **mat, short row, short col, byte *hashBytes)
 {
@@ -103,7 +129,7 @@ void fillWithRandomBinary(dtype **mat, short row, short col, byte *hashBytes)
 }
 
 // fill with random dtype numbers
-void fillWithRandomDtype(dtype **mat, short row, short col, byte *hashBytes)
+void fillWithRandomDtype(dtype **mat, short row, short col, byte *hashBytes, dtype q)
 {
     int numberOfPositions = row * col;
     int positionCounter = 0;
@@ -128,8 +154,9 @@ void fillWithRandomDtype(dtype **mat, short row, short col, byte *hashBytes)
         byteArrayPos = byteArrayPos % 32;
 
         // filling the dtype slot
-        for (int pos = 0; pos < (32/numOfSegmentsForDtype); pos++ ) {
-            mat[rowPos][colPos] = (mat[rowPos][colPos]<<8) | hashBytes[byteArrayPos];
+        for (int pos = 0; pos < (32 / numOfSegmentsForDtype); pos++)
+        {
+            mat[rowPos][colPos] = (mat[rowPos][colPos] << 8) | hashBytes[byteArrayPos];
             byteArrayPos++;
         }
 

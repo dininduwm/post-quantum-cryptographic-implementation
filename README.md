@@ -17,9 +17,10 @@ Latis based post quantum cryptographic algorithm implementation
 
 g++ input.cpp -o output -lsodium -DEIGEN_STACK_ALLOCATION_LIMIT=0
 
-g++ RegevsCryptoSystemWithAES.cpp -pthread -lsodium -std=c++11 ../Matrix/Matrix.cpp ../cryptopp/libcryptopp.a ../AESHelper/AESHelper.cpp ../FileHelper/FileHelper.cpp
+g++ RegevsCryptoSystemWithAES.cpp -pthread -lsodium -std=c++14 ../../RandomOracle/randomNumberGeneration.cpp ../../Matrix/Matrix.cpp ../../cryptopp/libcryptopp.a ../../AESHelper/AESHelper.cpp ../../FileHelper/FileHelper.cpp
 
-g++ DualCryptoSystemWithAES.cpp -pthread -lsodium -std=c++11 ../Matrix/Matrix.cpp ../cryptopp/libcryptopp.a ../AESHelper/AESHelper.cpp ../FileHelper/FileHelper.cpp
+g++ DualCryptoSystemWithAES.cpp -pthread -lsodium -std=c++14 ../../RandomOracle/randomNumberGeneration.cpp ../../Matrix/Matrix.cpp ../../cryptopp/libcryptopp.a ../../AESHelper/AESHelper.cpp ../../FileHelper/FileHelper.cpp
+
 #### if including helper functions
 g++ input.cpp -o output ../Helper/Helper.cpp
 ## For Regev Hybrid Crypto system compilation
