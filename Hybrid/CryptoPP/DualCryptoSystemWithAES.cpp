@@ -31,8 +31,8 @@ using namespace std::chrono;
 dtype q = 2000;
 // #define n 30
 // #define m 270
-#define n 30
-#define m 270
+#define n 500
+#define m 1000
 #define e_min -7
 #define e_max 7
 #define PI 3.14
