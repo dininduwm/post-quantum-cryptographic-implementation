@@ -40,14 +40,3 @@ string hashFile(char* fileName)
 }
 
 
-int main(int argc, char* argv[])
-{
- 
- char* file1 = (char*)"kgf2.mkv";
- char* file2 = (char*)"fileHash.cpp";
- cout << hashFile(file1) << " kgf2 hash " << endl;
- cout << hashFile(file2) << " fileHash hash " << endl;
-
-
-  return 0;
-}
