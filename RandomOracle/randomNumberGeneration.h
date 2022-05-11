@@ -16,7 +16,8 @@ using CryptoPP::byte;
 using CryptoPP::SHA256;
 using std::string;
 
-typedef long long dtype;
+// typedef long long dtype;
+typedef int dtype;
 
 // do the hashing to a byte array
 void byteHash(byte *message, int size, byte *output);

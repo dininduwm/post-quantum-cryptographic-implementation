@@ -4,7 +4,8 @@
 
 using namespace std;
 
-typedef long long dtype;
+// typedef long long dtype;
+typedef int dtype;
 
 // dump matrix to a file
 // need to provide an opend ostream

@@ -28,7 +28,7 @@ using namespace std;
 using namespace std::chrono;
 
 // defining the parameters
-dtype q = 2000;
+dtype q = 20000;
 // #define n 30
 // #define m 270
 #define n 500
@@ -435,9 +435,9 @@ int main(int argc, char const *argv[])
 {
     double time;
     // calculating q
-    unsigned long tmp1 = 1;
-    tmp1 = tmp1 << 31;
-    q = tmp1 - 19;
+    // unsigned long tmp1 = 1;
+    // tmp1 = tmp1 << 30;
+    // q = tmp1 - 19;
     cout << "q = " << q << endl;
 
     string message = "Hello";
