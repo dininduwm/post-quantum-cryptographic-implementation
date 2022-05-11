@@ -1,7 +1,7 @@
 #include "randomNumberGeneration.h"
 
 using namespace std;
-using CryptoPP::byte;
+// using CryptoPP::byte;
 // using CryptoPP::SHA256;
 using std::string;
 

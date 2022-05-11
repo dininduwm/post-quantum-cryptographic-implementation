@@ -440,6 +440,9 @@ int main(int argc, char const *argv[])
     // q = tmp1 - 19;
     cout << "q = " << q << endl;
 
+    assert(sodium_init() == 0);
+
+    // initiating the random number genarator with hash
     string message = "Hello";
     hashBytes = initHash(sigma, hashBytes, message);
 

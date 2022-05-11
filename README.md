@@ -17,9 +17,17 @@ Latis based post quantum cryptographic algorithm implementation
 
 g++ input.cpp -o output -lsodium -DEIGEN_STACK_ALLOCATION_LIMIT=0
 
+## for mac
+
 g++ RegevsCryptoSystemWithAES.cpp -pthread -lsodium -std=c++14 ../../RandomOracle/randomNumberGeneration.cpp ../../Matrix/Matrix.cpp ../../cryptopp/libcryptopp.a ../../AESHelper/AESHelper.cpp ../../FileHelper/FileHelper.cpp
 
 g++ DualCryptoSystemWithAES.cpp -pthread -lsodium -std=c++14 ../../RandomOracle/randomNumberGeneration.cpp ../../Matrix/Matrix.cpp ../../cryptopp/libcryptopp.a ../../AESHelper/AESHelper.cpp ../../FileHelper/FileHelper.cpp
+
+## for Ubuntu
+
+g++ RegevsCryptoSystemWithAES.cpp -pthread -lsodium -lcryptopp -std=c++14 ../../RandomOracle/randomNumberGeneration.cpp ../../Matrix/Matrix.cpp ../../AESHelper/AESHelper.cpp ../../FileHelper/FileHelper.cpp
+
+g++ DualCryptoSystemWithAES.cpp -pthread -lsodium -lcryptopp -std=c++14 ../../RandomOracle/randomNumberGeneration.cpp ../../Matrix/Matrix.cpp ../../AESHelper/AESHelper.cpp ../../FileHelper/FileHelper.cpp
 
 #### if including helper functions
 g++ input.cpp -o output ../Helper/Helper.cpp

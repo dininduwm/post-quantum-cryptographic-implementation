@@ -1,8 +1,8 @@
 #include <iostream>
 #include <random>
 #include <ctime>
-// #include "sodium.h"
-// #include "../Matrix/Matrix.h"
+#include "sodium.h"
+#include "../../Matrix/Matrix.h"
 // #include "../AESHelper/AESHelper.h"
 #include "../../FileHelper/FileHelper.h"
 #include "../../RandomOracle/randomNumberGeneration.h"
@@ -14,7 +14,7 @@ using namespace std::chrono;
 
 // defining the parameters
 // #define q 2000
-dtype q = 0;
+dtype q = 20000;
 // #define n 30
 // #define m 270
 #define n 500
@@ -436,10 +436,12 @@ int main(int argc, char const *argv[])
 {
     double time;
     // calculating q
-    unsigned long tmp1 = 1;
-    tmp1 = tmp1 << 31;
-    q = tmp1 - 19;
+    // unsigned long tmp1 = 1;
+    // tmp1 = tmp1 << 31;
+    // q = tmp1 - 19;
     cout << "q = " << q << endl;
+
+    assert(sodium_init() == 0);
 
     // initiating the random number genarator with hash
     string message = "Hello";
