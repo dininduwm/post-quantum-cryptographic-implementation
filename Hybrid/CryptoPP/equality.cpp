@@ -1,3 +1,5 @@
+// required changes are indicated
+
 #include <iostream>
 #include <random>
 #include <ctime>
@@ -145,6 +147,9 @@ void loadPublicKey(publicKey *public_key)
     public_key->A = initMatrix(public_key->A, n, m);
     // genarating the matrix
     gen_A(key, public_key->A);
+    // @change
+    // initializing U
+    // load public key U
 }
 
 // load private key
@@ -167,17 +172,24 @@ void loadPrivateKey(privateKey *private_key)
     private_key->A = initMatrix(private_key->A, n, m);
     // genarating the matrix
     gen_A(key, private_key->A);
+
+    // @change
+    // initialize D (mxn binary matrix)
+    // load d
 }
 
 // dump regev ciper text
 void dumpRegevCipherText(struct cipherText ct)
 {
     // dumping the cipher text
-    ofstream fout;
-    fout.open("cipher_2.bin", ios::binary | ios::out);
-    dumpMatrix(&fout, ct.u, n, numberBits);
-    dumpMatrix(&fout, ct.u_, 1, numberBits);
-    fout.close();
+    // ofstream fout;
+    // fout.open("cipher_2.bin", ios::binary | ios::out);
+    // dumpMatrix(&fout, ct.u, n, numberBits);
+    // dumpMatrix(&fout, ct.u_, 1, numberBits);
+    // fout.close();
+
+    // @change
+    // dump C1,c0,c1,c2,c3
 }
 
 // dump regev ciper text
@@ -192,6 +204,9 @@ struct cipherText loadRegevCipherText()
     loadMatrix(&fin, ct.u, n, numberBits);
     loadMatrix(&fin, ct.u_, 1, numberBits);
     fin.close();
+
+    // @change
+    // load C1,c0,c1,c2,c3 from file
 
     return ct;
 }
@@ -254,6 +269,9 @@ void dumpRegevKeys()
     dumpMatrix(&fout, public_key.bT, 1, m);
     dumpKey(&fout, key);
     fout.close();
+
+    // @change
+    // dumpmatrix U as well
 }
 
 // function to genarate keys
@@ -327,6 +345,9 @@ void genarateRegevKeys(privateKey *private_key, publicKey *public_key)
 
     // sharig A among public and private key
     private_key->A = public_key->A;
+
+    // @change
+    // add other key generations here.
 }
 
 // Regev Encrypting Function
