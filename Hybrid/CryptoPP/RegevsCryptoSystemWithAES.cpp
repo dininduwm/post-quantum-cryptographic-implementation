@@ -538,11 +538,6 @@ int main(int argc, char const *argv[])
         // initializing the matrix
         c2T = initMatrix(c2T, 1, m);
 
-        // defining c2T
-        // Matrix<dtype, 1, m> c2T;
-        dtype **c2T;
-        // initializing the matrix
-        c2T = initMatrix(c2T, 1, m);
 
         // defining c3T
         // Matrix<dtype, 1, k> c3T;
