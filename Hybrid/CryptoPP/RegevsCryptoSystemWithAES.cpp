@@ -52,7 +52,7 @@ struct publicKey
     dtype **A;
     dtype **bT;
 
-    SHA256 sha256;
+    //SHA256 sha256;
     dtype **U;
 
 };
@@ -66,7 +66,7 @@ struct privateKey
     dtype **sT;
 
     dtype **D;
-    dtype *err;
+    //dtype *err;
 
 
 };
@@ -78,9 +78,6 @@ struct cipherText
     // Matrix<dtype, 1, numberBits> u_;
     dtype **u;
     dtype **u_;
-
-    dtype **C2;
-    dtype **C3;
 };
 
 byte* generateBytes(short length)
@@ -91,9 +88,10 @@ byte* generateBytes(short length)
     return key;  
 }
 
-string hashFile(char* fileName)
+void hashFile(char* fileName, dtype **r)
 {   
-  std::string hashValue;    
+  std::string hashValue;
+    
   try
     {       
         SHA256 sha256;
@@ -104,15 +102,32 @@ string hashFile(char* fileName)
         cs.AddDefaultRoute(f1);
 
         FileSource(fileName ,true /*pumpAll*/, new Redirector(cs));
+
     }
     catch(const Exception& ex)
     {
         std::cerr << ex.what() << std::endl;
     }
 
-    return hashValue;
-}
+       short bit;
+       
+      
+       for(short byte = 0; byte < 32; byte++)
+        {
+            bit = byte * 8;
 
+            r[0][bit] = (hashValue[byte] & 128) ? 1 : 0;
+            r[0][bit + 1] = (hashValue[byte] & 64) ? 1 : 0; 
+            r[0][bit + 2] = (hashValue[byte] & 32) ? 1 : 0;
+            r[0][bit + 3] = (hashValue[byte] & 16) ? 1 : 0;
+            r[0][bit + 4] = (hashValue[byte] & 8) ? 1 : 0;
+            r[0][bit + 5] = (hashValue[byte] & 4) ? 1 : 0;
+            r[0][bit + 6] = (hashValue[byte] & 2) ? 1 : 0;
+            r[0][bit + 7] = (hashValue[byte] & 1) ? 1 : 0;        
+        }
+       
+
+}
 
 // genarate A matrix using a seed
 void gen_A(union un key, dtype **A)
@@ -262,12 +277,7 @@ void dumpRegevKeys()
     //     private_key.sT[0][i] = genUniformRandomlong(0, q - 1);
     // }
 
-    // dumping the private key
-    ofstream fout;
-    fout.open("private_key.bin", ios::binary | ios::out);
-    dumpMatrix(&fout, private_key.sT, 1, n);
-    dumpKey(&fout, key);
-    fout.close();
+
 
     double alpha = sqrt(double(n)) / q;
     double sigma = alpha / sqrt(2 * PI);
@@ -294,6 +304,34 @@ void dumpRegevKeys()
     // private_key->A = public_key->A;
 
     // dumping the public key
+
+
+    //task 4-key generation
+    
+    private_key.D = initMatrix(private_key.D , m, k);
+
+    byte* key_D = generateBytes(short(32));
+    fillWithRandomBinary(private_key.D, (short)m, (short)k, key_D);
+
+   // private_key->errs = initMatrix(private_key->errs , m, k);
+
+    public_key.U = initMatrix(public_key.U, n, k);
+    matMul(public_key.A, private_key.D, public_key.U, n, m, k, q);
+
+    //SHA256 hashFunction;
+    //public_key->sha256 = hashFunction;
+    // do we need to store this????????????????
+
+     //task 4-key generation
+
+
+    // dumping the private key
+    ofstream fout;
+    fout.open("private_key.bin", ios::binary | ios::out);
+    dumpMatrix(&fout, private_key.sT, 1, n);
+    dumpKey(&fout, key);
+    fout.close();
+
     fout.open("public_key.bin", ios::binary | ios::out);
     dumpMatrix(&fout, public_key.bT, 1, m);
     dumpKey(&fout, key);
@@ -308,6 +346,8 @@ void genarateRegevKeys(privateKey *private_key, publicKey *public_key)
     // Genarating the matrix A
     // initializing matrix A
     public_key->A = initMatrix(public_key->A, n, m);
+
+
     // for (int i = 0; i < n; i++)
     // {
     //     for (int j = 0; j < m; j++)
@@ -320,6 +360,32 @@ void genarateRegevKeys(privateKey *private_key, publicKey *public_key)
     union un key;
     prng.GenerateBlock(key.buff, sizeof(key.buff));
     gen_A(key, public_key->A);
+
+
+
+
+
+    //task 4-key generation
+    
+    private_key->D = initMatrix(private_key->D , m, k);
+
+    byte* key_D = generateBytes(short(32));
+    fillWithRandomBinary(private_key->D, (short)m, (short)k, key_D);
+
+   // private_key->errs = initMatrix(private_key->errs , m, k);
+
+    public_key->U = initMatrix(public_key->U, n, k);
+    matMul(public_key->A, private_key->D, public_key->U, n, m, k, q);
+
+    //SHA256 hashFunction;
+    //public_key->sha256 = hashFunction;
+    // do we need to store this????????????????
+
+     //task 4-key generation
+
+
+
+
 
     // avarage of A's coiff should be close to q/2
     // cout << "[DEBUG] Min of A : " << public_key->A.minCoeff() << " Max of A : " << public_key->A.maxCoeff() << endl;
@@ -345,6 +411,7 @@ void genarateRegevKeys(privateKey *private_key, publicKey *public_key)
     // Matrix<dtype, 1, m> eT;
     dtype **eT;
     eT = initMatrix(eT, 1, m);
+    // do we need to store this????????????????????
 
     // dtype total = 0;
     fillWithGaussianValues(sigma, q, eT, 1, m, hashBytes);
@@ -549,9 +616,11 @@ int main(int argc, char const *argv[])
         // task 4
 
 
+        dtype **hashedFile;
+        hashedFile = initMatrix(hashedFile, 1, numberBits);
 
-
-
+        char* name = (char*) "plain.jpg";
+        hashFile(name, hashedFile);
         double alpha = sqrt(double(n)) / q;
 
 
@@ -576,27 +645,22 @@ int main(int argc, char const *argv[])
         // initializing the matrix
         c2T = initMatrix(c2T, 1, m);
 
+        cout << "mat mul add" << endl;
         matMulAdd(rZT, public_key.A, xGT, c2T, 1, n, m, q);
 
-/*
-        for (int row = 0; row < 1; ++row)
-        {
-            for (int col = 0; col < m; ++col)
-            {
-                cout << c2T[row][col] << "  " ;
-            }
-            cout << " " << endl;
-        }
-*/
+        
+
         // defining c3T
         // Matrix<dtype, 1, k> c3T;
         dtype **c3T;
         // initializing the matrix
         c3T = initMatrix(c3T, 1, k);
-        matMulAdd(rZT, public_key.U, yGT, c3T, 1, n, k, q);
+        //matMulAdd(rZT, public_key.U, yGT, c3T, 1, n, k, q);
+
+        cout << "mat mul add done" << endl;
         //task 4
 
-
+ 
 
         auto stop = high_resolution_clock::now();
         auto duration = duration_cast<microseconds>(stop - start);
