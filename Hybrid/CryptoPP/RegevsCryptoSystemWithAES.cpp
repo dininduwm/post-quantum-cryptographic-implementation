@@ -78,8 +78,18 @@ struct cipherText
     // Matrix<dtype, 1, numberBits> u_;
     dtype **u;
     dtype **u_;
+
+    dtype **C2;
+    dtype **C3;
 };
 
+byte* generateBytes(short length)
+{   
+    byte* key  = new byte[length];
+    AutoSeededRandomPool rnd;
+    rnd.GenerateBlock(key, length); 
+    return key;  
+}
 
 string hashFile(char* fileName)
 {   
@@ -538,32 +548,27 @@ int main(int argc, char const *argv[])
 
         // task 4
 
-        // defining R
-        // Matrix<dtype, m, k> R;
-        dtype **R;
-        // initializing the matrix
-        R = initMatrix(R, m, k);
 
-        // defining c0
-        // Matrix<dtype, n, k> c0;
-        dtype **c0;
-        // initializing the matrix
-        c0 = initMatrix(c0, n, k);
 
-        // defining c1T
-        // Matrix<dtype, 1, k> c1T;
-        dtype **c1T;
-        // initializing the matrix
-        c1T = initMatrix(c1T, 1, k);
 
-        dtype **rZ;
-        rZ = initMatrix(rZ, 1, n);
 
-        dtype **xE;
-        xE = initMatrix(xE, 1, m);
+        double alpha = sqrt(double(n)) / q;
 
-        dtype **yE;
-        yE = initMatrix(yE, 1, k);
+
+        dtype **rZT;
+        rZT = initMatrix(rZT, 1, n);
+        byte* key_rZT = generateBytes(short(32));
+        fillWithRandomDtype(rZT, (short)1, (short)n, key_rZT, q);
+
+        dtype **xGT;
+        xGT = initMatrix(xGT, 1, m);
+        byte* key_xGT = generateBytes(short(32));
+        fillWithGaussianValues(alpha, q, xGT, 1, m, key_xGT);
+
+        dtype **yGT;
+        yGT = initMatrix(yGT, 1, k);
+        byte* key_yGT = generateBytes(short(32));
+        fillWithGaussianValues(alpha, q, yGT, 1, k, key_yGT);
 
         // defining c2T
         // Matrix<dtype, 1, m> c2T;
@@ -571,13 +576,24 @@ int main(int argc, char const *argv[])
         // initializing the matrix
         c2T = initMatrix(c2T, 1, m);
 
+        matMulAdd(rZT, public_key.A, xGT, c2T, 1, n, m, q);
 
+/*
+        for (int row = 0; row < 1; ++row)
+        {
+            for (int col = 0; col < m; ++col)
+            {
+                cout << c2T[row][col] << "  " ;
+            }
+            cout << " " << endl;
+        }
+*/
         // defining c3T
         // Matrix<dtype, 1, k> c3T;
         dtype **c3T;
         // initializing the matrix
         c3T = initMatrix(c3T, 1, k);
-
+        matMulAdd(rZT, public_key.U, yGT, c3T, 1, n, k, q);
         //task 4
 
 
