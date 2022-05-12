@@ -465,6 +465,15 @@ void printBits(dtype bit_array[numberBits])
     }
 }
 
+bool checkPlainTextEquality(cipherText ctx1, cipherText ctx2, privateKey private1, privatekey private2)
+{
+    // @change
+    // we are only interested in c3,c2 of cipher text and D of private key.
+    // calculate vT = c3T - c2T*D and v_T = c_3T - c_2T*D_
+    // calculate h,h_ using vT. same logic as the regev decision for bit 0,1
+    // if h == h_: return true else return false
+}
+
 int main(int argc, char const *argv[])
 {
     double time;
