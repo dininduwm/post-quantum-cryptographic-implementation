@@ -9,12 +9,24 @@
 #include <cmath>
 #include <chrono>
 
+#include <crypto++/cryptlib.h>
+#include <crypto++/channels.h>
+#include <crypto++/filters.h>
+#include <crypto++/files.h>
+#include <crypto++/sha.h>
+#include <crypto++/crc.h>
+#include <crypto++/hex.h>
+
+#include <string>
+#include <iostream>
+
 using namespace std;
 using namespace std::chrono;
 
 // defining the parameters
 // #define q 2000
 dtype q = 20000;
+dtype k = 256;
 // #define n 30
 // #define m 270
 #define n 500
@@ -38,6 +50,10 @@ struct publicKey
     // Matrix<dtype, 1, m> bT;
     dtype **A;
     dtype **bT;
+
+    SHA256 sha256;
+    dtype **U;
+
 };
 
 // private key
@@ -47,6 +63,11 @@ struct privateKey
     // Matrix<dtype, 1, n> sT;
     dtype **A;
     dtype **sT;
+
+    dtype **D;
+    dtype *err;
+
+
 };
 
 // cipher text
@@ -488,6 +509,50 @@ int main(int argc, char const *argv[])
         dumpRegevCipherText(cipher_text);
         // AES Encryption Process
         encryptAES(aesData);
+
+
+        // task 4
+
+        // defining R
+        // Matrix<dtype, m, k> R;
+        dtype **R;
+        // initializing the matrix
+        R = initMatrix(R, m, k);
+
+        // defining c0
+        // Matrix<dtype, n, k> c0;
+        dtype **c0;
+        // initializing the matrix
+        c0 = initMatrix(c0, n, k);
+
+        // defining c1T
+        // Matrix<dtype, 1, k> c1T;
+        dtype **c1T;
+        // initializing the matrix
+        c1T = initMatrix(c1T, 1, k);
+
+
+        // defining c2T
+        // Matrix<dtype, 1, m> c2T;
+        dtype **c2T;
+        // initializing the matrix
+        c2T = initMatrix(c2T, 1, m);
+
+        // defining c2T
+        // Matrix<dtype, 1, m> c2T;
+        dtype **c2T;
+        // initializing the matrix
+        c2T = initMatrix(c2T, 1, m);
+
+        // defining c3T
+        // Matrix<dtype, 1, k> c3T;
+        dtype **c3T;
+        // initializing the matrix
+        c3T = initMatrix(c3T, 1, k);
+
+        //task 4
+
+
 
         auto stop = high_resolution_clock::now();
         auto duration = duration_cast<microseconds>(stop - start);
