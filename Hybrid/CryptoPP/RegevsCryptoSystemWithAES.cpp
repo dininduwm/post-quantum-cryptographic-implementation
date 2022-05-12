@@ -22,6 +22,7 @@
 
 using namespace std;
 using namespace std::chrono;
+using namespace CryptoPP;
 
 // defining the parameters
 // #define q 2000
@@ -78,6 +79,30 @@ struct cipherText
     dtype **u;
     dtype **u_;
 };
+
+
+string hashFile(char* fileName)
+{   
+  std::string hashValue;    
+  try
+    {       
+        SHA256 sha256;
+       
+        HashFilter f1(sha256, new HexEncoder(new StringSink(hashValue)));
+
+        ChannelSwitch cs;
+        cs.AddDefaultRoute(f1);
+
+        FileSource(fileName ,true /*pumpAll*/, new Redirector(cs));
+    }
+    catch(const Exception& ex)
+    {
+        std::cerr << ex.what() << std::endl;
+    }
+
+    return hashValue;
+}
+
 
 // genarate A matrix using a seed
 void gen_A(union un key, dtype **A)
@@ -531,6 +556,14 @@ int main(int argc, char const *argv[])
         // initializing the matrix
         c1T = initMatrix(c1T, 1, k);
 
+        dtype **rZ;
+        rZ = initMatrix(rZ, 1, n);
+
+        dtype **xE;
+        xE = initMatrix(xE, 1, m);
+
+        dtype **yE;
+        yE = initMatrix(yE, 1, k);
 
         // defining c2T
         // Matrix<dtype, 1, m> c2T;
