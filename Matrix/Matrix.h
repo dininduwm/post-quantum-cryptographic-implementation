@@ -2,7 +2,9 @@
 #include <thread>
 #include <boost/multiprecision/cpp_int.hpp>
 
-typedef long long dtype;
+// typedef long long dtype;
+typedef int dtype;
+
 // for the multiplications and additions of elements not larger than long long
 // initializing the 2D matrix
 dtype **initMatrix(dtype **A, int row, int col);

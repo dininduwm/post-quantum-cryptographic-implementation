@@ -7,16 +7,22 @@
 #include "sodium.h"
 #include "../Matrix/Matrix.h"
 // #include "../FileHelper/FileHelper.h"
-#include "../cryptopp/aes.h"
-#include "../cryptopp/hex.h"
-#include "../cryptopp/files.h"
-#include "../cryptopp/sha.h"
+// #include "../cryptopp/aes.h"
+// #include "../cryptopp/hex.h"
+// #include "../cryptopp/files.h"
+// #include "../cryptopp/sha.h"
 
-using CryptoPP::byte;
+#include "crypto++/aes.h"
+#include "crypto++/hex.h"
+#include "crypto++/files.h"
+#include "crypto++/sha.h"
+
+// using CryptoPP::byte;
 using CryptoPP::SHA256;
 using std::string;
 
-typedef long long dtype;
+// typedef long long dtype;
+typedef int dtype;
 
 // do the hashing to a byte array
 void byteHash(byte *message, int size, byte *output);

@@ -5,7 +5,7 @@ using namespace std;
 // for AES
 using CryptoPP::AES;
 using CryptoPP::AutoSeededRandomPool;
-using CryptoPP::byte;
+// using byte;
 using CryptoPP::CTR_Mode;
 using CryptoPP::Exception;
 using CryptoPP::FileSink;
@@ -79,7 +79,7 @@ short *AESDataToBinConvert(AESKeyAndIv data)
 AESKeyAndIv binToAESData(short bitstream[(AESKeyLength + AESIvLength)])
 {
 
-    CryptoPP::byte *bytestream = new CryptoPP::byte[AESKeyLength];
+    byte *bytestream = new byte[AESKeyLength];
     struct AESKeyAndIv data;
 
     // helper varibles
@@ -96,7 +96,7 @@ AESKeyAndIv binToAESData(short bitstream[(AESKeyLength + AESIvLength)])
         // resetting for new byte
         if (i % 8 == 0)
         {
-            data.key[bytePosition] = (CryptoPP::byte)total;
+            data.key[bytePosition] = (byte)total;
             total = 0;
             bytePosition++;
         }
@@ -113,7 +113,7 @@ AESKeyAndIv binToAESData(short bitstream[(AESKeyLength + AESIvLength)])
 
         if (i % 8 == 0)
         {
-            data.iv[bytePosition] = (CryptoPP::byte)total;
+            data.iv[bytePosition] = (byte)total;
             total = 0;
             bytePosition++;
         }
@@ -134,7 +134,7 @@ void encryptAES(AESKeyAndIv data)
 {
     try
     {
-        CryptoPP::byte key[AES::DEFAULT_KEYLENGTH] = {}, iv[AES::BLOCKSIZE] = {};
+        byte key[AES::DEFAULT_KEYLENGTH] = {}, iv[AES::BLOCKSIZE] = {};
         CTR_Mode<AES>::Encryption encryptor;
         encryptor.SetKeyWithIV(data.key, sizeof(data, key), iv);
 
@@ -179,7 +179,7 @@ void decryptAES(AESKeyAndIv data)
 {
     try
     {
-        CryptoPP::byte key[AES::DEFAULT_KEYLENGTH] = {}, iv[AES::BLOCKSIZE] = {};
+        byte key[AES::DEFAULT_KEYLENGTH] = {}, iv[AES::BLOCKSIZE] = {};
         CTR_Mode<AES>::Encryption decryptor;
         decryptor.SetKeyWithIV(data.key, sizeof(data, key), iv);
 

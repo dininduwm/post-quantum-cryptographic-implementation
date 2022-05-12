@@ -1,18 +1,24 @@
 #include <iostream>
 #include <cstddef>
 // for AES
-#include "../cryptopp/aes.h"
-// #include "../cryptopp/modes.h>"
-#include "../cryptopp/hex.h"
-#include "../cryptopp/filters.h"
-#include "../cryptopp/ccm.h"
-#include "../cryptopp/files.h"
-#include "../cryptopp/osrng.h"
+// #include "../cryptopp/aes.h"
+// #include "../cryptopp/hex.h"
+// #include "../cryptopp/filters.h"
+// #include "../cryptopp/ccm.h"
+// #include "../cryptopp/files.h"
+// #include "../cryptopp/osrng.h"
+
+#include "crypto++/aes.h"
+#include "crypto++/hex.h"
+#include "crypto++/filters.h"
+#include "crypto++/ccm.h"
+#include "crypto++/files.h"
+#include "crypto++/osrng.h"
 
 // for AES
 using CryptoPP::AES;
 using CryptoPP::AutoSeededRandomPool;
-using CryptoPP::byte;
+// using CryptoPP::byte;
 using CryptoPP::CTR_Mode;
 using CryptoPP::Exception;
 using CryptoPP::FileSink;
