@@ -143,7 +143,11 @@ void loadPrivateKey(privateKey *private_key)
     // input file stream
     ifstream fin;
     fin.open("private_key.bin", ios::binary | ios::in);
-    loadMatrix(&fin, private_key->sT, 1, n);
+    // loadMatrix(&fin, private_key->sT, 1, n);
+    hashBytes = loadHash(&fin, hashBytes);
+    // filing sT matrix
+    fillWithRandomDtype(private_key->sT, 1, n, hashBytes, q);
+
 
     // key for the A matrix
     union un key;
@@ -200,7 +204,7 @@ void dumpRegevKeys()
     gen_A(key, public_key.A);
 
     private_key.sT = initMatrix(private_key.sT, 1, n);
-    fillWithRandomDtype(private_key.sT, 1, n, hashBytes, q);
+    // Don't have to do this 
     // for (int i = 0; i < n; i++)
     // {
     //     private_key.sT[0][i] = genUniformRandomlong(0, q - 1);
@@ -209,9 +213,14 @@ void dumpRegevKeys()
     // dumping the private key
     ofstream fout;
     fout.open("private_key.bin", ios::binary | ios::out);
-    dumpMatrix(&fout, private_key.sT, 1, n);
+    // dumpMatrix(&fout, private_key.sT, 1, n);
+    // dumping the hash for sT
+    dumpHash(&fout, hashBytes);
     dumpKey(&fout, key);
     fout.close();
+
+    // filling the sT matrix
+    fillWithRandomDtype(private_key.sT, 1, n, hashBytes, q);
 
     double alpha = sqrt(double(n)) / q;
     double sigma = alpha / sqrt(2 * PI);
