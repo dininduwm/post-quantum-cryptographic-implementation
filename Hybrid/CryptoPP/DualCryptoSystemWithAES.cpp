@@ -164,7 +164,11 @@ void loadPrivateKey(privateKey *private_key)
     // input file stream
     ifstream fin;
     fin.open("private_key.bin", ios::binary | ios::in);
-    loadMatrix(&fin, private_key->x, m, numberBits);
+    // loadMatrix(&fin, private_key->x, m, numberBits);
+    hashBytes = loadHash(&fin, hashBytes);
+    // fill with random binary
+    fillWithRandomBinary(private_key->x, m, numberBits, hashBytes);
+
 
     // key for the A matrix
     union un key;
@@ -275,7 +279,6 @@ void dumpDualKeys()
     gen_A(key, public_key.A);
 
     private_key.x = initMatrix(private_key.x, m, numberBits);
-    fillWithRandomBinary(private_key.x, m, numberBits, hashBytes);
     // for (long row = 0; row < m; row++)
     // {
     //     for (long col = 0; col < numberBits; col++)
@@ -288,10 +291,14 @@ void dumpDualKeys()
     // dumping the private key
     ofstream fout;
     fout.open("private_key.bin", ios::binary | ios::out);
-    dumpMatrix(&fout, private_key.x, m, numberBits);
+    // dumpMatrix(&fout, private_key.x, m, numberBits);
+    dumpHash(&fout, hashBytes);
     dumpKey(&fout, key);
     fout.close();
     
+    // fill with random binary
+    fillWithRandomBinary(private_key.x, m, numberBits, hashBytes);
+
     // initializing public ket u
     public_key.u = initMatrix(public_key.u, n, numberBits);
     // public_key->u = ((private_key->A)*(private_key->x));

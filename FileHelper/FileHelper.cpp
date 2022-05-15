@@ -11,6 +11,12 @@ void dumpMatrix(ofstream *fout, dtype **A, int rows, int cols)
         (*fout).write((char *)&A[row][0], sizeof(dtype) * cols);
     }
 }
+
+// dump the hash 
+void dumpHash(ofstream *fout, byte *array) {
+    (*fout).write((char *)&array[0], 32);
+}
+
 // dump array to a file
 // need to provide an opend ostream
 void dumpKey(ofstream *fout, union un key)
@@ -27,6 +33,11 @@ dtype **loadMatrix(ifstream *fin, dtype **A, int rows, int cols)
         (*fin).read((char *)&A[row][0], sizeof(dtype) * cols);
     }
     return A;
+}
+// load hash from the file 
+byte* loadHash(ifstream *fin, byte* array) {
+    (*fin).read((char *)&array[0], 32);
+    return array;
 }
 // load array from a file
 // need to provide an opend istream
