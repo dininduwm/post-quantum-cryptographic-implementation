@@ -68,8 +68,8 @@ struct cipherText
     dtype **C1;
     dtype **c0;
     dtype **c1;
-    dtype **c2;
-    dtype **c3;
+    dtype **c2T;
+    dtype **c3T;
 };
 
 // genarate A matrix using a seed
@@ -472,6 +472,35 @@ bool checkPlainTextEquality(cipherText ctx1, cipherText ctx2, privateKey private
     // calculate vT = c3T - c2T*D and v_T = c_3T - c_2T*D_
     // calculate h,h_ using vT. same logic as the regev decision for bit 0,1
     // if h == h_: return true else return false
+    // c2T: 1xm
+    // c3T: 1x256
+    // D : mx256
+    // vT -> 1x256
+    dtype **vT1;
+    dtype **vT2;
+    vT1 = initMatrix(vT, 1, 256);
+    vT2 = initMatrix(vT, 1, 256);
+    matMul(ctx1.c2T, private1.D, vT1, 1, m, 256, q);
+    matMul(ctx2.c2T, private2.D, vT2, 1, m, 256, q);
+    dtype val1, val2;
+    bool first, second;
+    for (size_t i = 0; i < 256; i++)
+    {
+        // c3T is a 1x256 matrix.
+        val1 = mod(ctx1.c3T[i] - vT1[1][i], q);
+        // OR
+        // val1 = mod(ctx1.c3T[1][i] - vT1[1][i], q);
+        val2 = mod(ctx2.c3T[i] - vT2[1][i], q);
+        // decide making
+        // (difference > (q / 4)) & (difference < (3 * q / 4))
+        first = (val1 > q / 4) & (val1 < 3 * q / 4);
+        second = (val2 > q / 4) & (val2 < 3 * q / 4);
+        if (first != second)
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 int main(int argc, char const *argv[])
