@@ -580,6 +580,7 @@ int main(int argc, char const *argv[])
     hashBytes = initHash(sigma, hashBytes, message);
 
     // Menu system
+    /*
     int option;
     cout << "Hybrid Encryption System. Select the option you want" << endl;
     cout << "1. Generate Key pair" << endl;
@@ -589,6 +590,65 @@ int main(int argc, char const *argv[])
 
     // taking user input
     cin >> option;
+    */
+
+    //encryption
+
+    struct publicKey public_key;
+    struct privateKey private_key;
+    genarateRegevKeys(&private_key, &public_key);
+
+    // Genarating AES Key and Iv
+    AESKeyAndIv aesData = generateAESKey();
+    // conver to bits
+    short *aesDataBin = AESDataToBinConvert(aesData);
+    // encrypting AES Key Data using Regev
+    cipherText cipher_text = encryptRegev(public_key, aesDataBin);
+    // AES Encryption Process
+    encryptAES(aesData);
+
+    //encryption
+
+
+
+    //decryption
+
+
+    // decrypting AES Key data using Regev
+    short *aesDataBinRecovered = decryptRegev(private_key, cipher_text);
+    // Converting binary data back to AES key and Iv
+    AESKeyAndIv convertedData = binToAESData(aesDataBinRecovered);
+    // AES Decryption
+    decryptAES(convertedData);
+
+
+
+
+
+    //decryption
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
+
+
 
     if (option == 1)
     {
@@ -703,6 +763,6 @@ int main(int argc, char const *argv[])
     {
         cout << "invalid option" << endl;
     }
-
+*/
     return 0;
 }
