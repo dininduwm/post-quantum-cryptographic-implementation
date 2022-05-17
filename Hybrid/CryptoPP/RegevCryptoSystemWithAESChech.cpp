@@ -433,11 +433,11 @@ short *decryptRegev(privateKey private_key, cipherText cipher_text)
         }
     }
 
-    return recovered;
 }
 
-void hashEquality(cipherText cipher_text)
-{
+bool hashEquality(cipherText cipher_text, privateKey private_key)
+{   
+    cout << "testing for equality" << endl;
     /*
     dtype **hashedFile;
     hashedFile = initMatrix(hashedFile, 1, numberBits);
@@ -445,17 +445,42 @@ void hashEquality(cipherText cipher_text)
     char* original = (char*) "plain.jpg";
     hashFile(original, hashedFile);
     */
-    dtype **hashedRecovered;
-    hashedRecovered = initMatrix(hashedFile, 1, numberBits);
+    dtype **hashOfRecovered;
+    hashOfRecovered = initMatrix(hashOfRecovered, 1, numberBits);
 
     char* recovered = (char*) "recovered.jpg";
-    hashFile(recovered, hashedRecovered);
+    hashFile(recovered, hashOfRecovered);
+
+    dtype **c2TD;
+    c2TD = initMatrix(c2TD, 1, k);
+    matMul(cipher_text.c2T, private_key.D, c2TD, 1, m, k, q); // calculate c2TD
 
     dtype **vT;
-    vT = initMatrix(c3T1, 1, k);
-    cipher_text.c3T  = initMatrix(c3T1, 1, k);
+    vT = initMatrix(vT, 1, k);
 
+    dtype **recoveredHash;
+    recoveredHash = initMatrix(recoveredHash, 1, k);
 
+    for (int i = 0; i < k; ++i)
+    {
+    
+        vT[0][i] = mod(cipher_text.c3T[0][i] - c2TD[0][i], q);     // calculate vT
+
+        if ((vT[0][i] > (q / 4)) & (vT[0][i] < (3 * q / 4)))
+         { // bit is 1
+            recoveredHash[0][i] = 1;
+         }
+        else
+         {
+            recoveredHash[0][i] = 0;
+         }
+
+        if(recoveredHash[0][i] != hashOfRecovered[0][i])
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 // function to genarate keys
@@ -733,7 +758,7 @@ int main(int argc, char const *argv[])
     decryptAES(convertedData);
 
 
-    hashEquality(cipher_text);
+    //hashEquality(cipher_text, private_key);
 
 
     //decryption
