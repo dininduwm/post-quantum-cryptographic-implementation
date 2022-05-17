@@ -64,8 +64,9 @@ struct privateKey
     // Matrix<dtype, 1, n> sT;
     dtype **A;
     dtype **sT;
-
+    
     dtype **D;
+
     //dtype *err;
 
 
@@ -78,6 +79,9 @@ struct cipherText
     // Matrix<dtype, 1, numberBits> u_;
     dtype **u;
     dtype **u_;
+
+    dtype **c2T;
+    dtype **c3T;
 };
 
 byte* generateBytes(short length)
@@ -607,6 +611,91 @@ int main(int argc, char const *argv[])
     // AES Encryption Process
     encryptAES(aesData);
 
+
+            // task 4
+
+
+
+
+        //dtype **qBy2;
+        //qBy2 = initMatrix(qBy2, 1, numberBits);
+
+
+
+
+        dtype **rZahlT;
+        rZahlT = initMatrix(rZahlT, 1, n);
+        byte* key_rZahlT = generateBytes(short(32));
+        fillWithRandomDtype(rZahlT, (short)1, (short)n, key_rZahlT, q);
+
+        double alpha = sqrt(double(n)) / q;
+
+        dtype **xGausT;
+        xGausT = initMatrix(xGausT, 1, m);
+        byte* key_xGausT = generateBytes(short(32));
+        fillWithGaussianValues(alpha, q, xGausT, 1, m, key_xGausT);
+
+        dtype **yGausT;
+        yGausT = initMatrix(yGausT, 1, k);
+        byte* key_yGausT = generateBytes(short(32));
+        fillWithGaussianValues(alpha, q, yGausT, 1, k, key_yGausT);
+
+        // defining c2T
+        // Matrix<dtype, 1, m> c2T;
+        //dtype **c2T;
+        // initializing the matrix
+        cipher_text.c2T = initMatrix(cipher_text.c2T, 1, m);
+
+        cout << "mat mul add" << endl;
+        // generating c2T
+        matMulAdd(rZahlT, public_key.A, xGausT, cipher_text.c2T, 1, n, m, q);
+
+        
+
+        // defining c3T
+        // Matrix<dtype, 1, k> c3T;
+        dtype **c3T1;
+        //dtype **c3T;
+        // initializing the matrix
+        c3T1 = initMatrix(c3T1, 1, k);
+        cipher_text.c3T  = initMatrix(c3T1, 1, k);
+        // generating c3T - step 1
+        matMulAdd(rZahlT, public_key.U, yGausT, c3T1, 1, n, k, q);
+
+        // generating c3T - step 2
+        dtype **hashedFile;
+        hashedFile = initMatrix(hashedFile, 1, numberBits);
+
+        char* name = (char*) "plain.jpg";
+        hashFile(name, hashedFile);
+/*
+        for (int i = 0; i < numberBits; ++i)
+        {
+            cout << " hashedFile[i]: "<< (hashedFile[0][i]) << endl;
+
+        }
+*/
+
+        for (int i = 0; i < k; ++i)
+        {
+            if(hashedFile[0][i] == 1)
+            {
+                cipher_text.c3T[0][i] = (c3T1[0][i] + q/2) % q;
+                cout << i + 1 << " : 1 : c3T[0][i]: " << cipher_text.c3T[0][i] << ", c3T1[[0][i]: " << c3T1[0][i] << " , hashedFile[0][i]: " << hashedFile[0][i] << endl;
+            }
+            else
+            {
+                cipher_text.c3T[0][i] = c3T1[0][i];
+                cout << i + 1 << " : 0 : c3T[0][i]: " << cipher_text.c3T[0][i] << ", c3T1[0][i]: " << c3T1[0][i] << " , hashedFile[0][i]: " << hashedFile[0][i] << endl;
+            }
+            //cout << i + 1 << ": " << c3T[i] << endl;
+        }
+
+        cout << "mat mul add done" << endl;
+
+        //task 4
+
+
     //encryption
 
 
@@ -693,20 +782,20 @@ int main(int argc, char const *argv[])
         double alpha = sqrt(double(n)) / q;
 
 
-        dtype **rZT;
-        rZT = initMatrix(rZT, 1, n);
-        byte* key_rZT = generateBytes(short(32));
-        fillWithRandomDtype(rZT, (short)1, (short)n, key_rZT, q);
+        dtype **rZahlT;
+        rZahlT = initMatrix(rZahlT, 1, n);
+        byte* key_rZahlT = generateBytes(short(32));
+        fillWithRandomDtype(rZahlT, (short)1, (short)n, key_rZahlT, q);
 
-        dtype **xGT;
-        xGT = initMatrix(xGT, 1, m);
-        byte* key_xGT = generateBytes(short(32));
-        fillWithGaussianValues(alpha, q, xGT, 1, m, key_xGT);
+        dtype **xGausT;
+        xGausT = initMatrix(xGausT, 1, m);
+        byte* key_xGausT = generateBytes(short(32));
+        fillWithGaussianValues(alpha, q, xGausT, 1, m, key_xGausT);
 
-        dtype **yGT;
-        yGT = initMatrix(yGT, 1, k);
-        byte* key_yGT = generateBytes(short(32));
-        fillWithGaussianValues(alpha, q, yGT, 1, k, key_yGT);
+        dtype **yGausT;
+        yGausT = initMatrix(yGausT, 1, k);
+        byte* key_yGausT = generateBytes(short(32));
+        fillWithGaussianValues(alpha, q, yGausT, 1, k, key_yGausT);
 
         // defining c2T
         // Matrix<dtype, 1, m> c2T;
@@ -715,7 +804,7 @@ int main(int argc, char const *argv[])
         c2T = initMatrix(c2T, 1, m);
 
         cout << "mat mul add" << endl;
-        matMulAdd(rZT, public_key.A, xGT, c2T, 1, n, m, q);
+        matMulAdd(rZahlT, public_key.A, xGausT, c2T, 1, n, m, q);
 
         
 
@@ -724,7 +813,7 @@ int main(int argc, char const *argv[])
         dtype **c3T;
         // initializing the matrix
         c3T = initMatrix(c3T, 1, k);
-        //matMulAdd(rZT, public_key.U, yGT, c3T, 1, n, k, q);
+        //matMulAdd(rZahlT, public_key.U, yGausT, c3T, 1, n, k, q);
 
         cout << "mat mul add done" << endl;
         //task 4
