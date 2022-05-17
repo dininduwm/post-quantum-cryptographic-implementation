@@ -183,6 +183,8 @@ dtype half(dtype q)
     }
 }
 
+
+
 // load public key
 void loadPublicKey(publicKey *public_key)
 {
@@ -329,13 +331,105 @@ void dumpRegevKeys()
     ofstream fout;
     fout.open("private_key.bin", ios::binary | ios::out);
     dumpMatrix(&fout, private_key.sT, 1, n);
+    dumpMatrix(&fout, private_key.D, m, k);
     dumpKey(&fout, key);
     fout.close();
 
     fout.open("public_key.bin", ios::binary | ios::out);
     dumpMatrix(&fout, public_key.bT, 1, m);
+    dumpMatrix(&fout, public_key.U, n, k);
     dumpKey(&fout, key);
     fout.close();
+}
+
+// function to genarate keys
+
+
+// Regev Encrypting Function
+cipherText encryptRegev(publicKey public_key, short *message_bit)
+{
+    struct cipherText cipher_text;
+
+    // Genarating the X matrix with random values
+    // Matrix<dtype, m, numberBits> X;
+    dtype **x;
+    // initializing the matrix
+    x = initMatrix(x, m, numberBits);
+
+    // filling x matrix
+    fillWithRandomBinary(x, n, numberBits, hashBytes);
+    // for (dtype i = 0; i < m; i++)
+    // {
+    //     for (dtype j = 0; j < numberBits; j++)
+    //     {
+    //         x[i][j] = genUniformRandomlong(0, 1);
+    //     }
+    // }
+    // cout<<"[DEBUG] min of X : "<<X.minCoeff()<<" max of X : "<<X.maxCoeff()<<endl;
+    // u = AX
+    // intializing u matix
+    cipher_text.u = initMatrix(cipher_text.u, n, numberBits);
+    // cipher_text.u = (public_key.A) * X;
+    matMul(public_key.A, x, cipher_text.u, n, m, numberBits, q);
+    // cout<<"[DEBUG] min of u : "<<cipher_text.u.minCoeff()<<" max of u : "<<cipher_text.u.maxCoeff()<<endl;
+
+    // defining bTx
+    // Matrix<dtype, 1, numberBits> bTx;
+    dtype **bTx;
+    // initializing the matrix
+    bTx = initMatrix(bTx, 1, numberBits);
+
+    // bTx = public_key.bT * X;
+    matMul(public_key.bT, x, bTx, 1, m, numberBits, q);
+
+    // // // taking the modulus of bTx
+    // // for (dtype i = 0; i < numberBits; i++)
+    // // {
+    // //     bTx(0, i) = mod(bTx(0, i), q);
+    // // }
+
+    // // encrypting the bits
+    // initalizing u_
+    cipher_text.u_ = initMatrix(cipher_text.u_, 1, numberBits);
+    for (int i = 0; i < numberBits; i++)
+    {
+        cipher_text.u_[0][i] = mod((bTx[0][i] + (message_bit[i] * half(q))), q);
+    }
+
+    // // cout<<"[DEBUG] u' : " <<cipher_text.u_ <<endl;
+    return cipher_text;
+}
+
+// Regev Decrypting Funciton
+short *decryptRegev(privateKey private_key, cipherText cipher_text)
+{
+    // defining sTu
+    // Matrix<dtype, 1, numberBits> sTu;
+    dtype **sTu;
+    // initializing the matrix
+    sTu = initMatrix(sTu, 1, numberBits);
+
+    // sTu = (private_key.sT) * (cipher_text.u);
+    matMul(private_key.sT, cipher_text.u, sTu, 1, n, numberBits, q);
+    // array to hold the recoverd bits
+    short *recovered = new short[numberBits];
+    dtype difference = 0;
+
+    for (dtype i = 0; i < numberBits; i++)
+    {
+        // recovering the single bit message
+        difference = mod(cipher_text.u_[0][i] - sTu[0][i], q);
+        if ((difference > (q / 4)) & (difference < (3 * q / 4)))
+        { // bit is 1
+            recovered[i] = 1;
+        }
+        else
+        {
+            recovered[i] = 0;
+        }
+    }
+
+    return recovered;
 }
 
 // function to genarate keys
@@ -440,92 +534,7 @@ void genarateRegevKeys(privateKey *private_key, publicKey *public_key)
     private_key->A = public_key->A;
 }
 
-// Regev Encrypting Function
-cipherText encryptRegev(publicKey public_key, short *message_bit)
-{
-    struct cipherText cipher_text;
 
-    // Genarating the X matrix with random values
-    // Matrix<dtype, m, numberBits> X;
-    dtype **x;
-    // initializing the matrix
-    x = initMatrix(x, m, numberBits);
-
-    // filling x matrix
-    fillWithRandomBinary(x, n, numberBits, hashBytes);
-    // for (dtype i = 0; i < m; i++)
-    // {
-    //     for (dtype j = 0; j < numberBits; j++)
-    //     {
-    //         x[i][j] = genUniformRandomlong(0, 1);
-    //     }
-    // }
-    // cout<<"[DEBUG] min of X : "<<X.minCoeff()<<" max of X : "<<X.maxCoeff()<<endl;
-    // u = AX
-    // intializing u matix
-    cipher_text.u = initMatrix(cipher_text.u, n, numberBits);
-    // cipher_text.u = (public_key.A) * X;
-    matMul(public_key.A, x, cipher_text.u, n, m, numberBits, q);
-    // cout<<"[DEBUG] min of u : "<<cipher_text.u.minCoeff()<<" max of u : "<<cipher_text.u.maxCoeff()<<endl;
-
-    // defining bTx
-    // Matrix<dtype, 1, numberBits> bTx;
-    dtype **bTx;
-    // initializing the matrix
-    bTx = initMatrix(bTx, 1, numberBits);
-
-    // bTx = public_key.bT * X;
-    matMul(public_key.bT, x, bTx, 1, m, numberBits, q);
-
-    // // // taking the modulus of bTx
-    // // for (dtype i = 0; i < numberBits; i++)
-    // // {
-    // //     bTx(0, i) = mod(bTx(0, i), q);
-    // // }
-
-    // // encrypting the bits
-    // initalizing u_
-    cipher_text.u_ = initMatrix(cipher_text.u_, 1, numberBits);
-    for (int i = 0; i < numberBits; i++)
-    {
-        cipher_text.u_[0][i] = mod((bTx[0][i] + (message_bit[i] * half(q))), q);
-    }
-
-    // // cout<<"[DEBUG] u' : " <<cipher_text.u_ <<endl;
-    return cipher_text;
-}
-
-// Regev Decrypting Funciton
-short *decryptRegev(privateKey private_key, cipherText cipher_text)
-{
-    // defining sTu
-    // Matrix<dtype, 1, numberBits> sTu;
-    dtype **sTu;
-    // initializing the matrix
-    sTu = initMatrix(sTu, 1, numberBits);
-
-    // sTu = (private_key.sT) * (cipher_text.u);
-    matMul(private_key.sT, cipher_text.u, sTu, 1, n, numberBits, q);
-    // array to hold the recoverd bits
-    short *recovered = new short[numberBits];
-    dtype difference = 0;
-
-    for (dtype i = 0; i < numberBits; i++)
-    {
-        // recovering the single bit message
-        difference = mod(cipher_text.u_[0][i] - sTu[0][i], q);
-        if ((difference > (q / 4)) & (difference < (3 * q / 4)))
-        { // bit is 1
-            recovered[i] = 1;
-        }
-        else
-        {
-            recovered[i] = 0;
-        }
-    }
-
-    return recovered;
-}
 
 // check the correctness
 bool checkAnswer(dtype message_bits[numberBits], dtype recovered_bits[numberBits])
