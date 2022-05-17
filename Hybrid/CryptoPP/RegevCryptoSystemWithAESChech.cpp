@@ -64,7 +64,7 @@ struct privateKey
     // Matrix<dtype, 1, n> sT;
     dtype **A;
     dtype **sT;
-    
+
     dtype **D;
 
     //dtype *err;
@@ -436,6 +436,28 @@ short *decryptRegev(privateKey private_key, cipherText cipher_text)
     return recovered;
 }
 
+void hashEquality(cipherText cipher_text)
+{
+    /*
+    dtype **hashedFile;
+    hashedFile = initMatrix(hashedFile, 1, numberBits);
+
+    char* original = (char*) "plain.jpg";
+    hashFile(original, hashedFile);
+    */
+    dtype **hashedRecovered;
+    hashedRecovered = initMatrix(hashedFile, 1, numberBits);
+
+    char* recovered = (char*) "recovered.jpg";
+    hashFile(recovered, hashedRecovered);
+
+    dtype **vT;
+    vT = initMatrix(c3T1, 1, k);
+    cipher_text.c3T  = initMatrix(c3T1, 1, k);
+
+
+}
+
 // function to genarate keys
 void genarateRegevKeys(privateKey *private_key, publicKey *public_key)
 {
@@ -658,7 +680,7 @@ int main(int argc, char const *argv[])
         //dtype **c3T;
         // initializing the matrix
         c3T1 = initMatrix(c3T1, 1, k);
-        cipher_text.c3T  = initMatrix(c3T1, 1, k);
+        cipher_text.c3T  = initMatrix(cipher_text.c3T, 1, k);
         // generating c3T - step 1
         matMulAdd(rZahlT, public_key.U, yGausT, c3T1, 1, n, k, q);
 
@@ -681,17 +703,17 @@ int main(int argc, char const *argv[])
             if(hashedFile[0][i] == 1)
             {
                 cipher_text.c3T[0][i] = (c3T1[0][i] + q/2) % q;
-                cout << i + 1 << " : 1 : c3T[0][i]: " << cipher_text.c3T[0][i] << ", c3T1[[0][i]: " << c3T1[0][i] << " , hashedFile[0][i]: " << hashedFile[0][i] << endl;
+                //cout << i + 1 << " : 1 : c3T[0][i]: " << cipher_text.c3T[0][i] << ", c3T1[[0][i]: " << c3T1[0][i] << " , hashedFile[0][i]: " << hashedFile[0][i] << endl;
             }
             else
             {
                 cipher_text.c3T[0][i] = c3T1[0][i];
-                cout << i + 1 << " : 0 : c3T[0][i]: " << cipher_text.c3T[0][i] << ", c3T1[0][i]: " << c3T1[0][i] << " , hashedFile[0][i]: " << hashedFile[0][i] << endl;
+                //cout << i + 1 << " : 0 : c3T[0][i]: " << cipher_text.c3T[0][i] << ", c3T1[0][i]: " << c3T1[0][i] << " , hashedFile[0][i]: " << hashedFile[0][i] << endl;
             }
             //cout << i + 1 << ": " << c3T[i] << endl;
         }
 
-        cout << "mat mul add done" << endl;
+        //cout << "mat mul add done" << endl;
 
         //task 4
 
@@ -711,7 +733,7 @@ int main(int argc, char const *argv[])
     decryptAES(convertedData);
 
 
-
+    hashEquality(cipher_text);
 
 
     //decryption
