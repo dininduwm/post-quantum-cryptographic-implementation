@@ -211,6 +211,23 @@ struct cipherText loadRegevCipherText()
     return ct;
 }
 
+struct cipherText loadRegevCipherTextSpecific(char *filename)
+{
+    struct cipherText ct;
+    ct.u = initMatrix(ct.u, n, numberBits);
+    ct.u_ = initMatrix(ct.u_, 1, numberBits);
+    // loading the cipher text
+    ifstream fin;
+    fin.open(filename, ios::binary | ios::in);
+    loadMatrix(&fin, ct.u, n, numberBits);
+    loadMatrix(&fin, ct.u_, 1, numberBits);
+    fin.close();
+
+    // @change
+    // load C1,c0,c1,c2,c3 from file
+
+    return ct;
+}
 // function to genarate keys
 void dumpRegevKeys()
 {

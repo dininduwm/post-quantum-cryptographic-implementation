@@ -178,6 +178,31 @@ void loadPrivateKey(privateKey *private_key)
     // load d
 }
 
+void loadPrivateKeySpecific(privateKey *private_key, char *filename)
+{
+    // initializing bT
+    private_key->sT = initMatrix(private_key->sT, 1, n);
+    // input file stream
+    ifstream fin;
+    fin.open(filename, ios::binary | ios::in);
+    loadMatrix(&fin, private_key->sT, 1, n);
+
+    // key for the A matrix
+    union un key;
+    key = loadKey(&fin, key);
+
+    fin.close();
+
+    // initializing A matrix
+    private_key->A = initMatrix(private_key->A, n, m);
+    // genarating the matrix
+    gen_A(key, private_key->A);
+
+    // @change
+    // initialize D (mxn binary matrix)
+    // load d
+}
+
 // dump regev ciper text
 void dumpRegevCipherText(struct cipherText ct, char *filename)
 {
@@ -192,8 +217,40 @@ void dumpRegevCipherText(struct cipherText ct, char *filename)
     // dump C1,c0,c1,c2,c3
 }
 
+void dumpRegevCipherTextSpecific(struct cipherText ct, char *filename)
+{
+    // dumping the cipher text
+    ofstream fout;
+    fout.open(filename, ios::binary | ios::out);
+    dumpMatrix(&fout, ct.c0, n, numberBits);
+    dumpMatrix(&fout, ct.c1T, 1, numberBits);
+    dumpMatrix(&fout, ct.c2T, 1, m);
+    dumpMatrix(&fout, ct.c3T, 1, numberBits);
+    fout.close();
+}
+
 // dump regev ciper text
-struct cipherText loadRegevCipherText(char *filename)
+struct cipherText loadRegevCipherText()
+{
+    struct cipherText ct;
+    ct.c0 = initMatrix(ct.c0, n, numberBits);
+    ct.c1T = initMatrix(ct.c1T, 1, numberBits);
+    ct.c2T = initMatrix(ct.c2T, 1, m);
+    ct.c3T = initMatrix(ct.c3T, 1, numberBits);
+
+    // loading the cipher text
+    ifstream fin;
+    fin.open("cipher_2.bin", ios::binary | ios::in);
+    loadMatrix(&fin, ct.c0, n, numberBits);
+    loadMatrix(&fin, ct.c1T, 1, numberBits);
+    loadMatrix(&fin, ct.c2T, 1, m);
+    loadMatrix(&fin, ct.c3T, 1, numberBits);
+
+    fin.close();
+
+    return ct;
+}
+struct cipherText loadRegevCipherTextSpecific(char *filename)
 {
     struct cipherText ct;
     ct.u = initMatrix(ct.u, n, numberBits);
@@ -465,7 +522,7 @@ void printBits(dtype bit_array[numberBits])
     }
 }
 
-bool checkPlainTextEquality(cipherText ctx1, cipherText ctx2, privateKey private1, privatekey private2)
+bool checkPlainTextEquality(cipherText ctx1, cipherText ctx2, privateKey private1, privateKey private2)
 {
     // @change
     // we are only interested in c3,c2 of cipher text and D of private key.
@@ -585,6 +642,27 @@ int main(int argc, char const *argv[])
         time = duration.count();
         time = time / 1000000;
         cout << "Decryption time = " << time << " s" << endl;
+    }
+    else if (option == 4)
+    {
+        struct privateKey privatekey1;
+        struct privateKey privatekey2;
+        // load private keys specific
+        loadPrivateKeySpecific(&privatekey1, "private_key_1.bin");
+        loadPrivateKeySpecific(&privatekey2, "private_key_2.bin");
+        cipherText ciphertext1;
+        cipherText ciphertext2;
+        ciphertext1 = loadRegevCipherTextSpecific("ctx1.bin");
+        ciphertext2 = loadRegevCipherTextSpecific("ctx2.bin");
+        // load regev cipher text specific
+        if (checkPlainTextEquality(ciphertext1, ciphertext2, privatekey1, privatekey2))
+        {
+            cout << "Same cipher texts" << endl;
+        }
+        else
+        {
+            cout << "not the same cipher text" << endl;
+        };
     }
     else
     {
