@@ -134,10 +134,13 @@ void loadPublicKey(publicKey *public_key)
 {
     // initializing bT
     public_key->bT = initMatrix(public_key->bT, 1, m);
+    // initalizing U
+    public_key->U = initMatrix(public_key->U, n, numberBits);
     // input file stream
     ifstream fin;
     fin.open("public_key.bin", ios::binary | ios::in);
     loadMatrix(&fin, public_key->bT, 1, m);
+    loadMatrix(&fin, public_key->U, n, numberBits);
     // cout << "hello" << public_key->bT[0][0] << endl;
 
     // key for the A matrix
@@ -157,13 +160,17 @@ void loadPrivateKey(privateKey *private_key)
 {
     // initializing bT
     private_key->sT = initMatrix(private_key->sT, 1, n);
+    // initializing D
+    private_key->D = initMatrix(private_key->D, m, numberBits);
     // input file stream
     ifstream fin;
     fin.open("private_key.bin", ios::binary | ios::in);
     // loadMatrix(&fin, private_key->sT, 1, n);
     hashBytes = loadHash(&fin, hashBytes);
-    // filing sT matrix
+    // filling sT matrix
     fillWithRandomDtype(private_key->sT, 1, n, hashBytes, q);
+    // filling D matix
+    fillWithRandomBinary(private_key->D, m, numberBits, hashBytes);
 
     // key for the A matrix
     union un key;
@@ -185,6 +192,8 @@ void dumpRegevCipherText(struct cipherText ct)
     fout.open("cipher_2.bin", ios::binary | ios::out);
     dumpMatrix(&fout, ct.c0, n, numberBits);
     dumpMatrix(&fout, ct.c1T, 1, numberBits);
+    dumpMatrix(&fout, ct.c2T, 1, m);
+    dumpMatrix(&fout, ct.c3T, 1, numberBits);
     fout.close();
 }
 
@@ -194,11 +203,17 @@ struct cipherText loadRegevCipherText()
     struct cipherText ct;
     ct.c0 = initMatrix(ct.c0, n, numberBits);
     ct.c1T = initMatrix(ct.c1T, 1, numberBits);
+    ct.c2T = initMatrix(ct.c2T, 1, m);
+    ct.c3T = initMatrix(ct.c3T, 1, numberBits);
+
     // loading the cipher text
     ifstream fin;
     fin.open("cipher_2.bin", ios::binary | ios::in);
     loadMatrix(&fin, ct.c0, n, numberBits);
     loadMatrix(&fin, ct.c1T, 1, numberBits);
+    loadMatrix(&fin, ct.c2T, 1, m);
+    loadMatrix(&fin, ct.c3T, 1, numberBits);
+
     fin.close();
 
     return ct;
@@ -220,11 +235,6 @@ void dumpRegevKeys()
     gen_A(key, public_key.A);
 
     private_key.sT = initMatrix(private_key.sT, 1, n);
-    // Don't have to do this
-    // for (int i = 0; i < n; i++)
-    // {
-    //     private_key.sT[0][i] = genUniformRandomlong(0, q - 1);
-    // }
 
     // dumping the private key
     ofstream fout;
@@ -237,6 +247,13 @@ void dumpRegevKeys()
 
     // filling the sT matrix
     fillWithRandomDtype(private_key.sT, 1, n, hashBytes, q);
+    // filling the D matrix
+    private_key.D = initMatrix(private_key.D, m, numberBits);
+    fillWithRandomBinary(private_key.D, m, numberBits, hashBytes);
+
+    // calculating U
+    public_key.U = initMatrix(public_key.U, n, numberBits);
+    matMul(public_key.A, private_key.D, public_key.U, n, m, numberBits, q);
 
     double alpha = sqrt(double(n)) / q;
     double sigma = alpha / sqrt(2 * PI);
@@ -247,13 +264,6 @@ void dumpRegevKeys()
 
     // dtype total = 0;
     fillWithGaussianValues(sigma, q, eT, 1, m, hashBytes);
-    // for (int i = 0; i < m; i++)
-    // {
-    //     // e should be small and should choosen between -7,7 (discreate gausisan distribution [ignore for now])
-    //     eT[0][i] = gaussian(sigma);
-    //     // total += eT(col);
-    // }
-    // cout << "[DEBUG] min e: " << eT.minCoeff() << " max e: " << eT.maxCoeff() << " total :" << total << endl;
 
     // calculating bT
     // public_key->bT = (private_key->sT) * (public_key->A) + eT;
@@ -265,6 +275,7 @@ void dumpRegevKeys()
     // dumping the public key
     fout.open("public_key.bin", ios::binary | ios::out);
     dumpMatrix(&fout, public_key.bT, 1, m);
+    dumpMatrix(&fout, public_key.U, n, numberBits);
     dumpKey(&fout, key);
     fout.close();
 }
