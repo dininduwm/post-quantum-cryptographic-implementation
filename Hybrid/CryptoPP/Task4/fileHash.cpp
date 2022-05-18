@@ -18,8 +18,6 @@ string hashFile(char* fileName)
     
   try
     {
-        
-       
         SHA256 sha256;
        
         HashFilter f1(sha256, new HexEncoder(new StringSink(hashValue)));

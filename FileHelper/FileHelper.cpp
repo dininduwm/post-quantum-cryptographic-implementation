@@ -1,6 +1,7 @@
 #include"FileHelper.h"
 
 using namespace std;
+using namespace CryptoPP;
 
 // dump matrix to a file
 // need to provide an opend ostream
@@ -45,6 +46,42 @@ union un loadKey(ifstream *fin, union un key)
 {
     (*fin).read((char *)&key, sizeof(key));
     return key;
+}
+
+// hash a file
+short* hashFile(char *fileName)
+{
+    // array to return
+    short *hashBits = new short[256];
+
+    std::string hashValue;
+    try
+    {
+        SHA256 sha256;
+        HashFilter f1(sha256, new HexEncoder(new StringSink(hashValue)));
+        ChannelSwitch cs;
+        cs.AddDefaultRoute(f1);
+        FileSource(fileName, true /*pumpAll*/, new Redirector(cs));
+    }
+    catch (const Exception &ex)
+    {
+        std::cerr << ex.what() << std::endl;
+    }
+    short bit;
+    for (short byte = 0; byte < 32; byte++)
+    {
+        bit = byte * 8;
+        hashBits[bit] = (hashValue[byte] & 128) ? 1 : 0;
+        hashBits[bit + 1] = (hashValue[byte] & 64) ? 1 : 0;
+        hashBits[bit + 2] = (hashValue[byte] & 32) ? 1 : 0;
+        hashBits[bit + 3] = (hashValue[byte] & 16) ? 1 : 0;
+        hashBits[bit + 4] = (hashValue[byte] & 8) ? 1 : 0;
+        hashBits[bit + 5] = (hashValue[byte] & 4) ? 1 : 0;
+        hashBits[bit + 6] = (hashValue[byte] & 2) ? 1 : 0;
+        hashBits[bit + 7] = (hashValue[byte] & 1) ? 1 : 0;
+    }
+
+    return hashBits;
 }
 
 

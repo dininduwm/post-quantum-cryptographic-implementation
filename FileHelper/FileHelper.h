@@ -2,6 +2,14 @@
 #include <fstream>
 #include"../AESHelper/AESHelper.h"
 
+#include <crypto++/cryptlib.h>
+#include <crypto++/channels.h>
+#include <crypto++/filters.h>
+#include <crypto++/files.h>
+#include <crypto++/sha.h>
+#include <crypto++/crc.h>
+#include <crypto++/hex.h>
+
 using namespace std;
 
 // typedef long long dtype;
@@ -26,3 +34,6 @@ dtype **loadMatrix(ifstream *fin, dtype **A, int rows, int cols);
 byte* loadHash(ifstream *fin, byte* array);
 // need to provide an opend istream
 union un loadKey(ifstream *fin, union un key);
+
+// hash a file
+short * hashFile(char *fileName);
