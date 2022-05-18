@@ -84,4 +84,27 @@ short* hashFile(char *fileName)
     return hashBits;
 }
 
+// hash a file to string
+std::string hashFileToString(char *fileName)
+{
+    // array to return
+    short *hashBits = new short[256];
+
+    std::string hashValue;
+    try
+    {
+        SHA256 sha256;
+        HashFilter f1(sha256, new HexEncoder(new StringSink(hashValue)));
+        ChannelSwitch cs;
+        cs.AddDefaultRoute(f1);
+        FileSource(fileName, true /*pumpAll*/, new Redirector(cs));
+    }
+    catch (const Exception &ex)
+    {
+        std::cerr << ex.what() << std::endl;
+    }
+
+    return hashValue;
+}
+
 

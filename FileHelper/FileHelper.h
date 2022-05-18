@@ -37,3 +37,5 @@ union un loadKey(ifstream *fin, union un key);
 
 // hash a file
 short * hashFile(char *fileName);
+// hash a file to string
+std::string hashFileToString(char *fileName);

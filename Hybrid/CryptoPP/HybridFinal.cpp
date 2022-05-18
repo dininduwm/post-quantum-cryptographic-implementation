@@ -222,6 +222,9 @@ struct cipherText loadRegevCipherText()
 // function to genarate keys
 void dumpRegevKeys()
 {
+    // initiating the random number genarator with hash
+    hashBytes = initHash(sigma, hashBytes, "");
+
     struct privateKey private_key;
     struct publicKey public_key;
 
@@ -283,6 +286,9 @@ void dumpRegevKeys()
 // function to genarate keys
 void genarateRegevKeys(privateKey *private_key, publicKey *public_key)
 {
+    // initiating the random number genarator with hash
+    hashBytes = initHash(sigma, hashBytes, "");
+
     // Genarating the matrix A
     // initializing matrix A
     public_key->A = initMatrix(public_key->A, n, m);
@@ -454,6 +460,11 @@ recoverdText decryptRegev(privateKey private_key, cipherText cipher_text)
 // do the full hybrid encryption
 cipherText encryptHybrid(publicKey public_key)
 {
+    // initiating the random number genarator with hash
+    // hashing the file
+    char *name = (char *)"plain.jpg";
+    hashBytes = initHash(sigma, hashBytes, hashFileToString(name));
+
     // Genarating AES Key and Iv
     AESKeyAndIv aesData = generateAESKey();
     // conver to bits
@@ -469,6 +480,9 @@ cipherText encryptHybrid(publicKey public_key)
 // do the full Hybrid decryption
 void decryptHybrid(privateKey private_key, cipherText cipher_text)
 {
+    // initiating the random number genarator with hash
+    hashBytes = initHash(sigma, hashBytes, "");
+
     // decrypting AES Key data using Regev
     recoverdText recovered = decryptRegev(private_key, cipher_text);
     // Converting binary data back to AES key and Iv
@@ -532,10 +546,6 @@ int main(int argc, char const *argv[])
     cout << "q = " << q << endl;
 
     assert(sodium_init() == 0);
-
-    // initiating the random number genarator with hash
-    string message = "Hello";
-    hashBytes = initHash(sigma, hashBytes, message);
 
     // Menu system
     int option;
