@@ -196,7 +196,7 @@ bool checkPlainTextEquality(cipherText ctx1, cipherText ctx2, privateKey private
     vT2 = initMatrix(vT2, 1, 256);
     matMul(ctx1.c2T, private1.D, vT1, 1, m, 256, q);
     matMul(ctx2.c2T, private2.D, vT2, 1, m, 256, q);
-    cout << "here" << endl;
+
     dtype val1, val2;
     bool first, second;
     for (size_t i = 0; i < 256; i++)
@@ -220,10 +220,12 @@ bool checkPlainTextEquality(cipherText ctx1, cipherText ctx2, privateKey private
 int main(int argc, char const *argv[])
 {
     double time;
+
     // calculating q
     // unsigned long tmp1 = 1;
     // tmp1 = tmp1 << 31;
     // q = tmp1 - 19;
+
     cout << "q = " << q << endl;
 
     assert(sodium_init() == 0);
@@ -231,15 +233,44 @@ int main(int argc, char const *argv[])
     struct privateKey privatekey1;
     struct privateKey privatekey2;
     // load private keys specific
+    auto start = high_resolution_clock::now();
     loadSpecificPrivateKey(&privatekey1, (char *)"private_key_1.bin");
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>(stop - start);
+    time = duration.count();
+    time = time / 1000000;
+    cout << "private key 1 load time = " << time << " s" << endl;
+
+    start = high_resolution_clock::now();
     loadSpecificPrivateKey(&privatekey2, (char *)"private_key_2.bin");
+    stop = high_resolution_clock::now();
+    duration = duration_cast<microseconds>(stop - start);
+    time = duration.count();
+    time = time / 1000000;
+    cout << "private key 2 load time = " << time << " s" << endl;
     cout << "privatekeys loaded successfully" << endl;
+
     cipherText ciphertext1;
     cipherText ciphertext2;
+
+    start = high_resolution_clock::now();
     ciphertext1 = loadSpecificRegevCipherText((char *)"cipher_2_1.bin");
+    stop = high_resolution_clock::now();
+    duration = duration_cast<microseconds>(stop - start);
+    time = duration.count();
+    time = time / 1000000;
+    cout << "cipher text 1 load time = " << time << " s" << endl;
+
+    start = high_resolution_clock::now();
     ciphertext2 = loadSpecificRegevCipherText((char *)"cipher_2_2.bin");
+    stop = high_resolution_clock::now();
+    duration = duration_cast<microseconds>(stop - start);
+    time = duration.count();
+    time = time / 1000000;
+    cout << "cipher text 1 load time = " << time << " s" << endl;
     // load regev cipher text specific
     cout << "ciphertexts loaded successfully" << endl;
+    start = high_resolution_clock::now();
     if (checkPlainTextEquality(ciphertext1, ciphertext2, privatekey1, privatekey2))
     {
         cout << "Same cipher texts" << endl;
@@ -248,5 +279,11 @@ int main(int argc, char const *argv[])
     {
         cout << "not the same cipher text" << endl;
     };
+    stop = high_resolution_clock::now();
+    duration = duration_cast<microseconds>(stop - start);
+    time = duration.count();
+    time = time / 1000000;
+    cout << "check equality time = " << time << " s" << endl;
+
     return 0;
 }
