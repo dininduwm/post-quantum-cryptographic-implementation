@@ -204,14 +204,14 @@ void loadPrivateKeySpecific(privateKey *private_key, char *filename)
 }
 
 // dump regev ciper text
-void dumpRegevCipherText(struct cipherText ct, char *filename)
+void dumpRegevCipherText(struct cipherText ct)
 {
-    // dumping the cipher text
-    // ofstream fout;
-    // fout.open("cipher_2.bin", ios::binary | ios::out);
-    // dumpMatrix(&fout, ct.u, n, numberBits);
-    // dumpMatrix(&fout, ct.u_, 1, numberBits);
-    // fout.close();
+    dumping the cipher text
+        ofstream fout;
+    fout.open("cipher_2.bin", ios::binary | ios::out);
+    dumpMatrix(&fout, ct.u, n, numberBits);
+    dumpMatrix(&fout, ct.u_, 1, numberBits);
+    fout.close();
 
     // @change
     // dump C1,c0,c1,c2,c3
@@ -544,10 +544,10 @@ bool checkPlainTextEquality(cipherText ctx1, cipherText ctx2, privateKey private
     for (size_t i = 0; i < 256; i++)
     {
         // c3T is a 1x256 matrix.
-        val1 = mod(ctx1.c3T[i] - vT1[1][i], q);
+        val1 = mod(ctx1.c3T[1][i] - vT1[1][i], q);
         // OR
         // val1 = mod(ctx1.c3T[1][i] - vT1[1][i], q);
-        val2 = mod(ctx2.c3T[i] - vT2[1][i], q);
+        val2 = mod(ctx2.c3T[1][i] - vT2[1][i], q);
         // decide making
         // (difference > (q / 4)) & (difference < (3 * q / 4))
         first = (val1 > q / 4) & (val1 < 3 * q / 4);
@@ -648,12 +648,12 @@ int main(int argc, char const *argv[])
         struct privateKey privatekey1;
         struct privateKey privatekey2;
         // load private keys specific
-        loadPrivateKeySpecific(&privatekey1, "private_key_1.bin");
-        loadPrivateKeySpecific(&privatekey2, "private_key_2.bin");
+        loadPrivateKeySpecific(&privatekey1, (char *)"private_key_1.bin");
+        loadPrivateKeySpecific(&privatekey2, (char *)"private_key_2.bin");
         cipherText ciphertext1;
         cipherText ciphertext2;
-        ciphertext1 = loadRegevCipherTextSpecific("ctx1.bin");
-        ciphertext2 = loadRegevCipherTextSpecific("ctx2.bin");
+        ciphertext1 = loadRegevCipherTextSpecific((char *)"cipher_2_1.bin");
+        ciphertext2 = loadRegevCipherTextSpecific((char *)"cipher_2_2.bin");
         // load regev cipher text specific
         if (checkPlainTextEquality(ciphertext1, ciphertext2, privatekey1, privatekey2))
         {
