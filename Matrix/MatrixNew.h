@@ -30,5 +30,6 @@ void matMulBinFraction(int **matrix, boost::dynamic_bitset<> &vec, int row_start
 
 void matMulBin(int **matrix, boost::dynamic_bitset<> &vec, int rows, int cols, int *result);
 
+void matMulBinBytes(dtype **matrix, byte **vec, int rows, int cols, dtype *result, dtype q);
 // mod oparation
 dtype mod(dtype value, dtype mod_value);

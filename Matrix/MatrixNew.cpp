@@ -246,7 +246,8 @@ void matMulSegmentBin(dtype **mat1, byte *vector, dtype **result, int r1_start, 
             for (int k = 0; k < c; k++)
             {
                 dtype mul = 0;
-                int bit = vector[] if (mat1[i][k] && mat2[k][j])
+                int bit = vector[];
+                if (mat1[i][k] && mat2[k][j])
                     mul = mat1[i][k] * mat2[k][j];
                 mul = mod(mul, q);
                 result[i][j] += mul;
@@ -287,4 +288,19 @@ void matMulBin(dtype **matrix, boost::dynamic_bitset<> &vec, int rows, int cols,
     th2.join();
     th3.join();
     th4.join();
+}
+
+void matMulBinByteSegment(dtype **mat1, byte **mat2, dtype **result, int row_start, int row_end, int cols, dtype q)
+{
+    // multiply a part of the matrix.
+    // bit shifts should be used to multipy.
+}
+
+void matMulBinBytes(dtype **mat1, byte **mat2, dtype **result, int r1, int c, int r2, dtype q)
+{
+    // mat2 should have binary numbers. each mat2[0] entry should have bits similar to the r2 .
+    // mat1: r1*c
+    // mat2: c*r2
+    // mat2 have c rows of byte arrays with length of r2/8. (each bit represents 0 or 1)
+    //
 }
